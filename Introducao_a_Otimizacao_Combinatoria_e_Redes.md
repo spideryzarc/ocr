@@ -82,18 +82,21 @@ Processo de encontrar a **melhor solução** dentre um **conjunto finito** ou co
 ## Caixeiro Viajante
 
 <!-- TODO: colocar imagem didática do problema do caixeiro viajante -->
+![height:500](https://upload.wikimedia.org/wikipedia/commons/1/11/Map_of_the_United_States_with_interstate_highways.svg)
 
 ---
 
 ## Problema da Mochila
 
 <!-- TODO: colocar imagem didática do problema da mochila -->
+![height:500](https://upload.wikimedia.org/wikipedia/commons/f/fd/Knapsack.svg)
 
 ---
 
 ## Cobertura de Conjuntos
 
 <!-- TODO: colocar imagem didática do problema de cobertura de conjuntos -->
+![height:500](https://upload.wikimedia.org/wikipedia/commons/6/6f/Set_cover.png)
 
 ---
 
@@ -105,6 +108,7 @@ Redes são sistemas modelados como grafos, onde nós (vértices) representam obj
 
 
 <!-- TODO: colocar imagem didática de uma rede de transporte -->
+
 
 ---
 
@@ -119,17 +123,21 @@ Redes são sistemas modelados como grafos, onde nós (vértices) representam obj
 
 <!-- TODO: colocar imagem didática do problema de caminho mínimo -->
 
+![height:500](https://upload.wikimedia.org/wikipedia/commons/5/57/Dijkstra_Animation.gif)
+
 ---
 
 ## Fluxo Máximo
 
 <!-- TODO: colocar imagem didática do problema de fluxo máximo -->
+![height:500](https://upload.wikimedia.org/wikipedia/commons/5/5d/Maxflow.png)
 
 ---
 
 ## Árvore Geradora Mínima
 
 <!-- TODO: colocar imagem didática do problema da árvore geradora mínima -->
+![height:500](https://upload.wikimedia.org/wikipedia/commons/d/d2/Minimum_spanning_tree.svg)
 
 ---
 
