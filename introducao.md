@@ -65,17 +65,98 @@ style: |
 
 # O que é Otimização Combinatória?
 
-Processo de encontrar a **melhor solução** dentre um **conjunto finito** ou contável de soluções possíveis.
+* Processo de encontrar a **melhor solução** dentre um **conjunto finito** ou contável de soluções possíveis.
+* No geral, uma solução para um problema de otimização combinatória pode ser visto como uma **sequência de decisões discretas** que levam a um resultado ótimo.
 <br>
->**Aplicações:** Planejamento logístico, design de circuitos, alocação de recursos, etc.
+* **Aplicações:** Planejamento logístico, design de circuitos, alocação de recursos, etc.
 
 ---
 
 # Exemplos de Problemas de Otimização
 
-- **Problema do Caixeiro Viajante:** Rota mais curta que visite todas as cidades uma vez.
 - **Problema da Mochila:** Seleção de itens com maior valor, respeitando restrições de peso.
 - **Cobertura de Conjuntos:** Seleção do menor número de subconjuntos que cubra todos os elementos.
+- **Empacotamento/Corte de Estoque:** Corte de materiais para minimizar desperdício ou empacotamento de itens em caixas.
+- **Problema do Caixeiro Viajante:** Rota mais curta que visite todas as cidades uma vez.
+
+---
+
+## Problema da Mochila (*Knapsack*)
+
+Dados um **conjunto de itens**, cada um com um **peso** e um **valor**, e uma mochila com **capacidade máxima**, o problema da mochila consiste em selecionar itens para **maximizar o valor total**, **sem exceder a capacidade** da mochila.
+
+![bg left:50% ](images/knapsack.jpeg)
+
+
+---
+### Modelo de Programação Linear Inteira
+
+- **Conjuntos:** $I = \{1,2,...,n\}$ de itens,
+- **Parâmetros:** 
+  - $v_i$ (valor do item $i$), 
+  - $w_i$ (peso do item $i$), 
+  - $W$ (capacidade da mochila).
+- **Variáveis de Decisão:** $x_i \in \{0,1\}$, onde $x_i = 1$ se o item $i$ é selecionado.
+- **Modelo:**
+$$
+\begin{align*}
+\max & \sum_{i \in I} v_i x_i \\
+\text{s.a.} & \sum_{i \in I} w_i x_i \leq W \\
+& x_i \in \{0,1\} \quad \forall i \in I
+\end{align*}
+$$
+
+---
+### Modelo PLI Implementado em Python (SCIP)
+
+```python
+def knapsack(C:int,profits:list,weights:list)->tuple:
+    ''' C: int - capacity of the knapsack
+        profits: list - list of profits of each item
+        weights: list - list of weights of each item
+        return: tuple - (max_profit, items)'''
+    n = len(profits)
+    model = Model("knapsack")
+    x = [model.addVar(vtype="B") for i in range(n)]
+    # add objective function
+    model.setObjective(qsum(profits[i]*x[i] for i in range(n)), "maximize")
+    # add constraints
+    model.addCons(qsum(weights[i]*x[i] for i in range(n)) <= C)
+    model.optimize() # solve the model
+    max_profit = model.getObjVal() # get the optimal value
+    # get the selected items
+    items = [i for i in range(n) if model.getVal(x[i]) > 0.5]
+    return max_profit, items
+```
+---
+
+## Cobertura de Conjuntos (*set cover*)
+
+Dado um **conjunto de elementos** e um **conjunto de subconjuntos**, o problema de cobertura de conjuntos consiste em selecionar o **menor número de subconjuntos** que **cubra todos os elementos**.
+
+Se os conjuntos tiverem **custos associados**, o objetivo é **minimizar o custo total** dos subconjuntos selecionados.
+
+![bg left height:500](https://upload.wikimedia.org/wikipedia/commons/4/4b/Set-Cover.svg)
+
+---
+
+### Modelo de Programação Linear Inteira
+
+- **Conjuntos:** $U$ de elementos, $S$ de subconjuntos.
+- **Parâmetros:** 
+  - $c_s$ (custo do subconjunto $s$), 
+  - $U_s$ (elementos cobertos por $s$).
+  - **Variáveis de Decisão:** $x_s \in \{0,1\}$, onde $x_s = 1$ se o subconjunto $s$ é selecionado.
+- **Modelo:**
+
+$$
+\begin{align*}
+\min & \sum_{s \in S} c_s x_s \\
+\text{s.a.} & \sum_{s \in S} x_s \cdot U_s \geq 1 \quad \forall u \in U \\
+& x_s \in \{0,1\} \quad \forall s \in S
+\end{align*}
+$$
+
 
 ---
 
@@ -84,19 +165,7 @@ Processo de encontrar a **melhor solução** dentre um **conjunto finito** ou co
 <!-- TODO: colocar imagem didática do problema do caixeiro viajante -->
 ![height:500](https://upload.wikimedia.org/wikipedia/commons/1/11/Map_of_the_United_States_with_interstate_highways.svg)
 
----
 
-## Problema da Mochila
-
-<!-- TODO: colocar imagem didática do problema da mochila -->
-![height:500](https://upload.wikimedia.org/wikipedia/commons/f/fd/Knapsack.svg)
-
----
-
-## Cobertura de Conjuntos
-
-<!-- TODO: colocar imagem didática do problema de cobertura de conjuntos -->
-![height:500](https://upload.wikimedia.org/wikipedia/commons/6/6f/Set_cover.png)
 
 ---
 
