@@ -1,6 +1,6 @@
 ---
 marp: true
-title: "Introdução à Otimização Combinatória e Redes"
+title: "Introdução à Otimização Combinatória em Grafos"
 theme: default
 class: lead
 footer: "OCR - Albert E. F. Muritiba"
@@ -14,7 +14,7 @@ style: |
 # Em todas as minhas obras o Senhor será glorificado.	
 ---
 
-# Introdução à Otimização Combinatória e Redes
+# Introdução à Otimização Combinatória em Grafos
 
 ---
 

@@ -1,5 +1,19 @@
+---
+title: "Plano de Ensino - Otimização Combinatória e em Grafos"
+author: Albert E. F. Muritiba
+date: 22-02-2024
+output: pdf_document
+---
 
-# Plano de Ensino - Otimização Combinatória e em Grafos (18 semanas)
+# Identificação
+
+- **Disciplina**: Otimização Combinatória e em Grafos
+- **Professor**: Albert E. F. Muritiba
+- **Período**: 2024.1
+- **Repositório**: [github](https://github.com/spideryzarc/ocr.git)
+- **Notas de Aula**: [slides](https://spideryzarc.github.io/ocr/)
+
+# Plano de Ensino - Otimização Combinatória e em Grafos
 
 ## Ementa
 Tipos de problemas de otimização combinatória e de otimização em redes. Abordagem para problemas de empacotamento e cobertura via programação linear inteira e algoritmos de aproximação. Problemas de Caminho: formulações do problema de caminho mínimo como problema de programação linear e dinâmica, princípios básicos de programação dinâmica, algoritmos de rotulação, algoritmos de Dantzig, Dijkstra, Floyd. Problemas de fluxo: teorema max flow/min cut, algoritmos de aumento de fluxo, algoritmos de balanceamento de excessos, implementação com árvores dinâmicas; algoritmos para fluxo de custo mínimo (polinomial e do tipo simplex), algoritmos do tipo scaling. Árvore geradora, árvore geradora mínima, algoritmos de Prim e Kruskal. Fluxos em redes, modelos de programação linear inteira.
