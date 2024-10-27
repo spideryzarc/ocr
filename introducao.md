@@ -221,6 +221,28 @@ $$
 
 ---
 
+### Modelo PLI Implementado em Python (SCIP)
+
+```python
+def bpp(n:int,m:int,w:list,W:list)->tuple:
+    model = Model("bpp")
+    x = {(i,j):model.addVar(vtype="B") for i in range(n) for j in range(m)}
+    y = [model.addVar(vtype="B") for j in range(m)]
+    # add objective function
+    model.setObjective(qsum(y), "minimize")
+    # add constraints
+    for i in range(n):
+        model.addCons(qsum(x[i,j] for j in range(m)) == 1)
+    for j in range(m):
+        model.addCons(qsum(w[i]*x[i,j] for i in range(n)) <= W[j]*y[j])
+    # optimize
+    model.optimize()
+    min_bins = model.getObjVal()
+    bin_assignment = [[j for j in range(m) if model.getVal(x[i,j]) > 0.5][0] for i in range(n)]
+    return min_bins, bin_assignment
+```
+---
+
 
 
 ## Caixeiro Viajante
