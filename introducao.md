@@ -231,12 +231,12 @@ O problema é **NP-Completo**, o que significa que não existe um algoritmo efic
 
 ---
 
-### Modelo de Programação Linear Inteira
-
+### Modelo de Programação Linear Inteira (MTZ)
+Miller-Tucker-Zemlin (1960)
 - **Conjuntos:** 
-  - $I=\{0,1,2,...,n\}$ de cidades,
-  - $I'=\{1,2,...,n\}$ de cidades excluindo a cidade de origem.
-  - $A=\{(i,j): i,j \in I\}$ de arcos.
+  - $I=\{0,1,2,...,n-1\}$ : cidades,
+  - $I'= I/\{0\}$ : cidades excluindo a cidade de origem.
+  - $A=\{(i,j): i,j \in I\}$ : arcos.
 - **Parâmetros:**  $d_{ij}$ (distância entre as cidades $i$ e $j$).
 - **Variáveis de Decisão:** 
   - $x_{ij} \in \{0,1\}$, onde $x_{ij} = 1$ se o arco $(i,j)$ é selecionado.
@@ -250,7 +250,7 @@ $$
 \min & \sum_{(i,j) \in A} d_{ij} x_{ij} \\
 \text{s.a.} & \sum_{j \in I} x_{ij} = 1 \quad \forall i \in I \\
 & \sum_{i \in I} x_{ij} = 1 \quad \forall j \in I \\
-& u_i - u_j + n.x_{ij} \leq n-1 \quad \forall i,j \in I', i \neq j \\
+& u_i - u_j + n.x_{ij} \leq n-1 \quad \forall i \in I, j \in I', i \neq j \\
 & x_{ij} \in \{0,1\} \quad \forall (i,j) \in A\\
 & u_i \in \mathbb{Z^+} \quad \forall i \in I
 \end{align*}
@@ -259,12 +259,37 @@ $$
 
 ---
 
-### Modelo de Programação Linear Inteira com *Subtour Elimination*
+### Modelo PLI Implementado em Python (SCIP)
+
+```python
+def tsp_mtz(c:np.array)->tuple:
+    n = c.shape[0]
+    model = Model("tsp")
+    x = {(i,j):model.addVar(vtype="B") for i in range(n) for j in range(n)}
+    u = [model.addVar(vtype="C") for i in range(n)]
+    model.setObjective(qsum(c[i,j]*x[i,j] for i in range(n) for j in range(n)), "minimize")
+    for i in range(n):
+        model.addCons(qsum(x[i,j] for j in range(n) if i!=j ) == 1)
+        model.addCons(qsum(x[j,i] for j in range(n) if i!=j ) == 1)
+    for i in range(n):
+        for j in range(1,n):
+            if i != j: model.addCons(u[i] - u[j] + n*x[i,j] <= n-1)
+    model.optimize()
+    min_cost = model.getObjVal()
+    u_val = [model.getVal(u[i]) for i in range(n)]
+    tour = np.argsort(u_val)
+    return min_cost, tour
+```
+
+---
+
+### Modelo de Programação Linear Inteira (DFJ)
+Dantzig-Fulkerson-Johnson (1954)
 
 - **Conjuntos:** 
-  - $I=\{0,1,2,...,n\}$ de cidades,
-  - $A=\{(i,j): i,j \in I\}$ de arcos.
-  - $S = \{s \subseteq I, s \neq \emptyset\}$, todos os subconjuntos não vazios de cidades.
+  - $I=\{0,1,2,...,n-1\}$ : cidades,
+  - $A=\{(i,j): i,j \in I\}$ : arcos.
+- **Parâmetros:**  $d_{ij}$ (distância entre as cidades $i$ e $j$).
 - **Variáveis de Decisão:** 
   - $x_{ij} \in \{0,1\}$, onde $x_{ij} = 1$ se o arco $(i,j)$ é selecionado.
 
@@ -276,24 +301,37 @@ $$
 \min & \sum_{(i,j) \in A} d_{ij} x_{ij} \\
 \text{s.a.} & \sum_{j \in I} x_{ij} = 1 \quad \forall i \in I \\
 & \sum_{i \in I} x_{ij} = 1 \quad \forall j \in I \\
-& \sum_{(i,j) \in \delta^+(S)} x_{ij} \geq 2 \quad \forall S \subset I, S \neq \emptyset \\
+& \sum_{(i,j) \in S} x_{ij} \leq \sharp(S)-1 \quad \forall S \subsetneq I, S \neq \emptyset \\
 & x_{ij} \in \{0,1\} \quad \forall (i,j) \in A
 \end{align*}
 $$
 
-> Onde $\delta^+(S)$ é o conjunto de arcos que saem de $S$.
-> Observe que a restrição de *subtour elimination* é exponencial, o que torna o modelo impraticável para instâncias grandes.
+> Onde $S$ é um subconjunto de cidades, e $\sharp(S)$ é o número de elementos em $S$.
+> Observe que a restrição de *subtour elimination* é **exponencial**, o que torna o modelo impraticável para **instâncias** grandes.
   
 ---
 
-# O que são Redes?
+Uma variação da restrição de *subtour elimination*:
 
-Redes são sistemas modelados como grafos, onde nós (vértices) representam objetos e arestas (ligações) representam as conexões entre eles.
-<br>
->**Exemplos:** Redes de transporte, redes de comunicação, redes de distribuição de energia.
+$$
+\begin{align*}
+& \sum_{i \in S}\sum_{j \notin S} x_{ij} \geq 1 \quad \forall S \subsetneq I, S \neq \emptyset \\
+\end{align*}
+$$
 
 
-<!-- TODO: colocar imagem didática de uma rede de transporte -->
+---
+
+ * Na prática, **relaxamos** a restrição de *subtour elimination* e resolvemos o problema iterativamente,
+ * A cada iteração, identificamos um *subtour* e **adicionamos** uma restrição para eliminá-lo,
+ * O processo é repetido até que não existam mais subtours.
+ * As restrições relaxadas são chamadas de **lazy constraints**.
+ * Não confundir com *cutting planes*, que são restrições adicionadas ao modelo para melhorar a convergência.
+ * ***Lazy constraints*** são necessárias para garantir a **correção** do modelo (sem elas, o modelo pode retornar soluções inválidas),
+ * ***Cutting planes*** são utilizadas para **melhorar a eficiência** do modelo.
+ 
+
+---
 
 
 ---
