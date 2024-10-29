@@ -349,11 +349,111 @@ $$
  * O processo é repetido até que não existam mais subtours.
  * As restrições relaxadas são chamadas de **lazy constraints**.
  * Não confundir com *cutting planes*, que são restrições adicionadas ao modelo para melhorar a convergência.
- * ***Lazy constraints*** são necessárias para garantir a **correção** do modelo (sem elas, o modelo pode retornar soluções inválidas),
- * ***Cutting planes*** são utilizadas para **melhorar a eficiência** do modelo.
+   * ***Lazy constraints*** são necessárias para garantir a **correção** do modelo (sem elas, o modelo pode retornar soluções inválidas),
+   * ***Cutting planes*** são utilizadas para **melhorar a eficiência** do modelo.
  
 
 ---
+
+## Árvore Geradora Mínima
+
+Dado um **grafo conexo** e **ponderado**, o problema da árvore geradora mínima consiste em encontrar a **árvore** que conecta todos os vértices com o **menor custo total**.
+
+![bg left:50% fit](https://upload.wikimedia.org/wikipedia/commons/d/d2/Minimum_spanning_tree.svg)
+
+<br>
+
+> Árvore na teoria dos grafos é um subgrafo **conexo** e **acíclico**.
+---
+
+### Modelo de Programação Linear Inteira
+
+- **Conjuntos:** 
+  - $I=\{1,2,...,n\}$ de vértices,
+  - $A=\{(i,j): i,j \in I\}$ de arestas.
+- **Parâmetros:** $c_{ij}$ (custo da aresta $(i,j)$).
+- **Variáveis de Decisão:** $x_{ij} \in \{0,1\}$, onde $x_{ij} = 1$ se a aresta $(i,j)$ é selecionada.
+
+---
+
+- **Modelo:** Eliminação de Subciclos
+
+$$
+\begin{align*}
+\min & \sum_{(i,j) \in A} c_{ij} x_{ij} \\
+\text{s.a.} & \sum_{(i,j) \in A} x_{ij} = n-1 \\
+& \sum_{(i,j) \in S} x_{ij} \leq \sharp(S)-1 \quad \forall S \subsetneq I, S \neq \emptyset \\
+& x_{ij} \in \{0,1\} \quad \forall (i,j) \in A
+\end{align*}
+$$
+
+---
+
+Alternativamente os subciclos podem ser eliminados com a restrição:
+$$
+\begin{align*}
+& \sum_{(i,j) \in \delta(S)} x_{ij} \geq 1 \quad \forall S \subsetneq I, S \neq \emptyset \\
+\end{align*}
+$$
+
+> Onde $\delta(S)$ é o conjunto de arestas que conectam o subconjunto $S$ ao restante do grafo.
+> A restrição de *subtour elimination* é **exponencial**, o que torna o modelo impraticável para **instâncias** grandes.
+
+- Para resolver o problema de forma eficiente, utilizamos algoritmos como **Prim** e **Kruskal**.
+
+---
+
+## Caminho Mínimo
+
+Dado um **grafo** com **arestas ponderadas** e um **vértice de origem**, o problema do caminho mínimo consiste em encontrar o **caminho de menor custo** entre o vértice de origem e todos os outros vértices ou um vértice de destino.
+
+![bg left:50% fit](https://upload.wikimedia.org/wikipedia/commons/5/57/Dijkstra_Animation.gif)
+
+---
+
+### Modelos de Programação Linear Inteira
+
+- **Conjuntos:** 
+  - $I=\{1,2,...,n\}$ de vértices,
+  - $A=\{(i,j): i,j \in I\}$ de arestas.
+- **Parâmetros:** 
+  - $c_{ij}$ (custo da aresta $(i,j)$),
+  - $s$ (vértice de origem).
+  - $t$ (vértice de destino).
+- **Variáveis de Decisão:** 
+  - $x_{ij} \in \{0,1\}$, onde $x_{ij} = 1$ se a aresta $(i,j)$ é selecionada.
+
+---
+
+- **Modelo:**  origem-destino
+
+$$
+\begin{align*}
+\min & \sum_{(i,j) \in A} c_{ij} x_{ij} \\
+\text{s.a.} & \\
+& \sum_{j \in I}^{j\neq i} x_{ij} = \sum_{j \in I}^{j\neq i} x_{ji} \quad \forall i \in I / \{s,t\} \\
+& \sum_{j \in I} x_{sj} = 1 \\
+& \sum_{i \in I} x_{it} = 1 \\
+& x_{ij} \in \{0,1\} \quad \forall (i,j) \in A
+\end{align*}
+$$
+
+
+---
+
+- **Modelo:**  origem-todos
+  - Seja a variável $y_{ij}$ um fluxo hipotético entre os vértices $i$ e $j$.
+$$
+\begin{align*}
+\min & \sum_{(i,j) \in A} c_{ij} x_{ij} \\
+\text{s.a.} & \\
+& y_{ij} \leq (n-1)x_{ij} \quad \forall (i,j) \in A \\
+& \sum_{j \in I}^{j\neq i} y_{ij} - \sum_{j \in I}^{j\neq i} y_{ji} = \begin{cases} 1 & \text{se } i=s \\ -1 & \text{se } i=t \\ 0 & \text{caso contrário} \end{cases} \quad \forall i \in I \\
+& x_{ij} \in \{0,1\} \quad \forall (i,j) \in A \\
+& y_{ij} \geq 0 \quad \forall (i,j) \in A
+\end{align*}
+$$
+
 
 
 ---
@@ -380,10 +480,6 @@ $$
 
 ---
 
-## Árvore Geradora Mínima
-
-<!-- TODO: colocar imagem didática do problema da árvore geradora mínima -->
-![height:500](https://upload.wikimedia.org/wikipedia/commons/d/d2/Minimum_spanning_tree.svg)
 
 ---
 
