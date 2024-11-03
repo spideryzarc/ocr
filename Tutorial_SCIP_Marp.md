@@ -41,53 +41,6 @@ Maximizar valor sem ultrapassar a capacidade.
 
 ---
 
-## Definir o Problema no SCIP
-
-1. Criar variáveis binárias
-```bash
-create variable x1 binary
-create variable x2 binary
-create variable x3 binary
-```
-
-2. Definir a função objetivo
-```bash
-set obj sense maximize
-add obj 10 x1
-add obj 13 x2
-add obj 18 x3
-```
-
----
-
-## Restrições e Solução
-
-1. Adicionar a restrição de capacidade
-```bash
-add cons 5 x1 + 6 x2 + 8 x3 <= 10
-```
-
-2. Resolver o problema
-```bash
-optimize
-```
-
-3. Exibir a solução
-```bash
-display solution
-```
-
----
-
-# Salvando e Exportando o Modelo
-
-Você pode salvar o modelo para análise posterior:
-```bash
-write problem mochila.lp
-```
-
----
-
 # Uso com Python (PySCIPOpt)
 
 SCIP oferece uma API Python para resolução de problemas. Instale com:
@@ -120,23 +73,57 @@ print("Valor da mochila =", model.getObjVal())
 
 ---
 
-# Problemas Avançados com SCIP
+# Tipos de Variáveis [doc](https://pyscipopt.readthedocs.io/en/latest/tutorials/vartypes.html)
 
-Além do problema de **mochila**, o SCIP pode resolver:
+- `C` (Continuous): Variável contínua.
+- `I` (Integer): Variável inteira.
+- `B` (Binary): Variável binária.
+- `M` (Implicit integer): Variável inteira implícita.
 
-- **MILP (Programação Linear Mista Inteira)**
-- **MINLP (Programação Não Linear Inteira)**
-- **Programação por Restrições (CSP)**
+--- 
+
+# Parâmetros de Execução [doc](https://pyscipopt.readthedocs.io/en/latest/tutorials/model.html)
+
+Os principais parâmetros de execução podem ser configurados com o método `setIntParam` e `setRealParam`.
+
+```python
+model.setRealParam("limits/time", 60) # Limite de tempo
+model.setRealParam("limits/memory", 1024) # Limite de memória
+model.setIntParam("lp/threads", 4) # Número de threads
+```
 
 ---
 
-# Conclusão
+# Parâmetros de *plugins* [doc](https://pyscipopt.readthedocs.io/en/latest/tutorials/model.html)
 
-O SCIP é uma ferramenta versátil para resolver problemas de otimização complexos, com aplicações em várias áreas como logística, indústria, e pesquisa.
+Plugins são extensões do SCIP que podem ser ativadas ou desativadas. Por exemplo, o *plugins* de corte de planos.
+
+```python
+from pyscipopt import Model, SCIP_PARAMSETTING
+
+scip = Model()
+scip.setHeuristics(SCIP_PARAMSETTING.AGGRESSIVE)
+scip.setPresolve(SCIP_PARAMSETTING.FAST)
+scip.setEmphasis(SCIP_PARAMSETTING.FEASIBILITY)
+
+```
 
 ---
 
-# Próximos Passos
-- Explore a documentação oficial: [https://scipopt.org/doc/html/index.php]
-- Pratique com exemplos mais complexos (MILP, MINLP).
+# *Callbacks* [doc](https://pyscipopt.readthedocs.io/en/latest/tutorials/eventhandler.html)
+
+*Callbacks* são funções que são chamadas em determinados eventos durante a resolução do problema. Por exemplo, para adicionar cortes ou *lazy constraints*.
+
+```python
+from pyscipopt import Model, SCIP_EVENTTYPE
+
+def print_obj_value(model, event):
+    print("New best solution found with objective value: {}".format(model.getObjVal()))
+
+m = Model()
+m.attachEventHandlerCallback(print_obj_value, [SCIP_EVENTTYPE.BESTSOLFOUND])
+m.optimize()
+```
+
+
 

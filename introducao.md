@@ -12,9 +12,12 @@ style: |
     font-size: 0.75rem;
   }
 # Em todas as minhas obras o Senhor será glorificado.	
+
 ---
 
-# Introdução à Otimização Combinatória em Grafos
+# Introdução
+
+Neste módulo, vamos estudar problemas de **otimização combinatória** e **otimização em redes**, discutindo conceitos, modelos matemáticos e implementações computacionais usando *solvers* de programação linear inteira.
 
 ---
 
