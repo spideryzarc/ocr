@@ -24,7 +24,7 @@ def bpp(n:int,m:int,w:list,W:list)->tuple:
     # optimize
     model.optimize()
     min_bins = model.getObjVal()
-    bin_assignment = [[j for j in range(m) if model.getVal(x[i,j]) > 0.5][0] for i in range(n)]
+    bin_assignment = [next(j for j in range(m) if model.getVal(x[i,j]) > 0.5) for i in range(n)]
     return min_bins, bin_assignment
 
 if __name__ == "__main__":

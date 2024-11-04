@@ -15,7 +15,7 @@
 " lang="pt-BR" class="lead" data-marpit-pagination="1" style="--class:lead;--footer:OCR - Albert E. F. Muritiba;--paginate:true;--background-color:#ffffff;--background-image:url('https://marp.app/assets/hero-background.svg');--theme:default;--style:.small{
   font-size: 0.75rem;
 }
-;background-color:#ffffff;background-image:url('https://marp.app/assets/hero-background.svg');background-position:center;background-repeat:no-repeat;background-size:cover;" data-marpit-pagination-total="11">
+;background-color:#ffffff;background-image:url('https://marp.app/assets/hero-background.svg');background-position:center;background-repeat:no-repeat;background-size:cover;" data-marpit-pagination-total="10">
 <h1 id="introdu%C3%A7%C3%A3o-ao-scip">Introdução ao SCIP</h1>
 <p>SCIP (Solving Constraint Integer Programs) é uma poderosa ferramenta para resolver problemas de Programação Linear Inteira (PLI), Programação Linear Mista (MILP) e mais. É amplamente utilizado em pesquisa e indústrias pela sua eficiência.</p>
 <footer>OCR - Albert E. F. Muritiba</footer>
@@ -26,7 +26,7 @@
 " lang="pt-BR" class="lead" data-marpit-pagination="2" style="--class:lead;--footer:OCR - Albert E. F. Muritiba;--paginate:true;--background-color:#ffffff;--background-image:url('https://marp.app/assets/hero-background.svg');--theme:default;--style:.small{
   font-size: 0.75rem;
 }
-;background-color:#ffffff;background-image:url('https://marp.app/assets/hero-background.svg');background-position:center;background-repeat:no-repeat;background-size:cover;" data-marpit-pagination-total="11">
+;background-color:#ffffff;background-image:url('https://marp.app/assets/hero-background.svg');background-position:center;background-repeat:no-repeat;background-size:cover;" data-marpit-pagination-total="10">
 <h1 id="instala%C3%A7%C3%A3o-do-scip">Instalação do SCIP</h1>
 <h2 id="no-linux-ubuntu">No Linux (Ubuntu)</h2>
 <pre is="marp-pre" data-auto-scaling="downscale-only"><code class="language-bash">sudo apt update
@@ -42,7 +42,7 @@ sudo apt install scip
 " lang="pt-BR" class="lead" data-marpit-pagination="3" style="--class:lead;--footer:OCR - Albert E. F. Muritiba;--paginate:true;--background-color:#ffffff;--background-image:url('https://marp.app/assets/hero-background.svg');--theme:default;--style:.small{
   font-size: 0.75rem;
 }
-;background-color:#ffffff;background-image:url('https://marp.app/assets/hero-background.svg');background-position:center;background-repeat:no-repeat;background-size:cover;" data-marpit-pagination-total="11">
+;background-color:#ffffff;background-image:url('https://marp.app/assets/hero-background.svg');background-position:center;background-repeat:no-repeat;background-size:cover;" data-marpit-pagination-total="10">
 <h1 id="modo-interativo-exemplo-simples">Modo Interativo: Exemplo Simples</h1>
 <h2 id="problema-da-mochila">Problema da Mochila</h2>
 <p>Itens com valores: 10, 13, 18 e pesos: 5, 6, 8. Capacidade da mochila: 10.<br />
@@ -55,22 +55,10 @@ Maximizar valor sem ultrapassar a capacidade.</p>
 " lang="pt-BR" class="lead" data-marpit-pagination="4" style="--class:lead;--footer:OCR - Albert E. F. Muritiba;--paginate:true;--background-color:#ffffff;--background-image:url('https://marp.app/assets/hero-background.svg');--theme:default;--style:.small{
   font-size: 0.75rem;
 }
-;background-color:#ffffff;background-image:url('https://marp.app/assets/hero-background.svg');background-position:center;background-repeat:no-repeat;background-size:cover;" data-marpit-pagination-total="11">
-<h2 id="definir-o-problema-no-scip">Definir o Problema no SCIP</h2>
-<ol>
-<li>Criar variáveis binárias</li>
-</ol>
-<pre is="marp-pre" data-auto-scaling="downscale-only"><code class="language-bash">create variable x1 binary
-create variable x2 binary
-create variable x3 binary
-</code></pre>
-<ol start="2">
-<li>Definir a função objetivo</li>
-</ol>
-<pre is="marp-pre" data-auto-scaling="downscale-only"><code class="language-bash"><span class="hljs-built_in">set</span> obj sense maximize
-add obj 10 x1
-add obj 13 x2
-add obj 18 x3
+;background-color:#ffffff;background-image:url('https://marp.app/assets/hero-background.svg');background-position:center;background-repeat:no-repeat;background-size:cover;" data-marpit-pagination-total="10">
+<h1 id="uso-com-python-pyscipopt">Uso com Python (PySCIPOpt)</h1>
+<p>SCIP oferece uma API Python para resolução de problemas. Instale com:</p>
+<pre is="marp-pre" data-auto-scaling="downscale-only"><code class="language-bash">pip install pyscipopt
 </code></pre>
 <footer>OCR - Albert E. F. Muritiba</footer>
 </section>
@@ -80,58 +68,7 @@ add obj 18 x3
 " lang="pt-BR" class="lead" data-marpit-pagination="5" style="--class:lead;--footer:OCR - Albert E. F. Muritiba;--paginate:true;--background-color:#ffffff;--background-image:url('https://marp.app/assets/hero-background.svg');--theme:default;--style:.small{
   font-size: 0.75rem;
 }
-;background-color:#ffffff;background-image:url('https://marp.app/assets/hero-background.svg');background-position:center;background-repeat:no-repeat;background-size:cover;" data-marpit-pagination-total="11">
-<h2 id="restri%C3%A7%C3%B5es-e-solu%C3%A7%C3%A3o">Restrições e Solução</h2>
-<ol>
-<li>Adicionar a restrição de capacidade</li>
-</ol>
-<pre is="marp-pre" data-auto-scaling="downscale-only"><code class="language-bash">add cons 5 x1 + 6 x2 + 8 x3 &lt;= 10
-</code></pre>
-<ol start="2">
-<li>Resolver o problema</li>
-</ol>
-<pre is="marp-pre" data-auto-scaling="downscale-only"><code class="language-bash">optimize
-</code></pre>
-<ol start="3">
-<li>Exibir a solução</li>
-</ol>
-<pre is="marp-pre" data-auto-scaling="downscale-only"><code class="language-bash">display solution
-</code></pre>
-<footer>OCR - Albert E. F. Muritiba</footer>
-</section>
-</foreignObject></svg><svg data-marpit-svg="" viewBox="0 0 1280 720"><foreignObject width="1280" height="720"><section id="6" data-class="lead" data-footer="OCR - Albert E. F. Muritiba" data-paginate="true" data-background-color="#ffffff" data-background-image="url('https://marp.app/assets/hero-background.svg')" data-theme="default" data-style=".small{
-  font-size: 0.75rem;
-}
-" lang="pt-BR" class="lead" data-marpit-pagination="6" style="--class:lead;--footer:OCR - Albert E. F. Muritiba;--paginate:true;--background-color:#ffffff;--background-image:url('https://marp.app/assets/hero-background.svg');--theme:default;--style:.small{
-  font-size: 0.75rem;
-}
-;background-color:#ffffff;background-image:url('https://marp.app/assets/hero-background.svg');background-position:center;background-repeat:no-repeat;background-size:cover;" data-marpit-pagination-total="11">
-<h1 id="salvando-e-exportando-o-modelo">Salvando e Exportando o Modelo</h1>
-<p>Você pode salvar o modelo para análise posterior:</p>
-<pre is="marp-pre" data-auto-scaling="downscale-only"><code class="language-bash">write problem mochila.lp
-</code></pre>
-<footer>OCR - Albert E. F. Muritiba</footer>
-</section>
-</foreignObject></svg><svg data-marpit-svg="" viewBox="0 0 1280 720"><foreignObject width="1280" height="720"><section id="7" data-class="lead" data-footer="OCR - Albert E. F. Muritiba" data-paginate="true" data-background-color="#ffffff" data-background-image="url('https://marp.app/assets/hero-background.svg')" data-theme="default" data-style=".small{
-  font-size: 0.75rem;
-}
-" lang="pt-BR" class="lead" data-marpit-pagination="7" style="--class:lead;--footer:OCR - Albert E. F. Muritiba;--paginate:true;--background-color:#ffffff;--background-image:url('https://marp.app/assets/hero-background.svg');--theme:default;--style:.small{
-  font-size: 0.75rem;
-}
-;background-color:#ffffff;background-image:url('https://marp.app/assets/hero-background.svg');background-position:center;background-repeat:no-repeat;background-size:cover;" data-marpit-pagination-total="11">
-<h1 id="uso-com-python-pyscipopt">Uso com Python (PySCIPOpt)</h1>
-<p>SCIP oferece uma API Python para resolução de problemas. Instale com:</p>
-<pre is="marp-pre" data-auto-scaling="downscale-only"><code class="language-bash">pip install pyscipopt
-</code></pre>
-<footer>OCR - Albert E. F. Muritiba</footer>
-</section>
-</foreignObject></svg><svg data-marpit-svg="" viewBox="0 0 1280 720"><foreignObject width="1280" height="720"><section id="8" data-class="lead" data-footer="OCR - Albert E. F. Muritiba" data-paginate="true" data-background-color="#ffffff" data-background-image="url('https://marp.app/assets/hero-background.svg')" data-theme="default" data-style=".small{
-  font-size: 0.75rem;
-}
-" lang="pt-BR" class="lead" data-marpit-pagination="8" style="--class:lead;--footer:OCR - Albert E. F. Muritiba;--paginate:true;--background-color:#ffffff;--background-image:url('https://marp.app/assets/hero-background.svg');--theme:default;--style:.small{
-  font-size: 0.75rem;
-}
-;background-color:#ffffff;background-image:url('https://marp.app/assets/hero-background.svg');background-position:center;background-repeat:no-repeat;background-size:cover;" data-marpit-pagination-total="11">
+;background-color:#ffffff;background-image:url('https://marp.app/assets/hero-background.svg');background-position:center;background-repeat:no-repeat;background-size:cover;" data-marpit-pagination-total="10">
 <h2 id="exemplo-em-python-problema-da-mochila">Exemplo em Python: Problema da Mochila</h2>
 <pre is="marp-pre" data-auto-scaling="downscale-only"><code class="language-python"><span class="hljs-keyword">from</span> pyscipopt <span class="hljs-keyword">import</span> Model
 
@@ -153,20 +90,83 @@ solution = model.getBestSol()
 </code></pre>
 <footer>OCR - Albert E. F. Muritiba</footer>
 </section>
+</foreignObject></svg><svg data-marpit-svg="" viewBox="0 0 1280 720"><foreignObject width="1280" height="720"><section id="6" data-class="lead" data-footer="OCR - Albert E. F. Muritiba" data-paginate="true" data-background-color="#ffffff" data-background-image="url('https://marp.app/assets/hero-background.svg')" data-theme="default" data-style=".small{
+  font-size: 0.75rem;
+}
+" lang="pt-BR" class="lead" data-marpit-pagination="6" style="--class:lead;--footer:OCR - Albert E. F. Muritiba;--paginate:true;--background-color:#ffffff;--background-image:url('https://marp.app/assets/hero-background.svg');--theme:default;--style:.small{
+  font-size: 0.75rem;
+}
+;background-color:#ffffff;background-image:url('https://marp.app/assets/hero-background.svg');background-position:center;background-repeat:no-repeat;background-size:cover;" data-marpit-pagination-total="10">
+<h1 id="tipos-de-vari%C3%A1veis-doc">Tipos de Variáveis <a href="https://pyscipopt.readthedocs.io/en/latest/tutorials/vartypes.html">doc</a></h1>
+<ul>
+<li><code>C</code> (Continuous): Variável contínua.</li>
+<li><code>I</code> (Integer): Variável inteira.</li>
+<li><code>B</code> (Binary): Variável binária.</li>
+<li><code>M</code> (Implicit integer): Variável inteira implícita.</li>
+</ul>
+<footer>OCR - Albert E. F. Muritiba</footer>
+</section>
+</foreignObject></svg><svg data-marpit-svg="" viewBox="0 0 1280 720"><foreignObject width="1280" height="720"><section id="7" data-class="lead" data-footer="OCR - Albert E. F. Muritiba" data-paginate="true" data-background-color="#ffffff" data-background-image="url('https://marp.app/assets/hero-background.svg')" data-theme="default" data-style=".small{
+  font-size: 0.75rem;
+}
+" lang="pt-BR" class="lead" data-marpit-pagination="7" style="--class:lead;--footer:OCR - Albert E. F. Muritiba;--paginate:true;--background-color:#ffffff;--background-image:url('https://marp.app/assets/hero-background.svg');--theme:default;--style:.small{
+  font-size: 0.75rem;
+}
+;background-color:#ffffff;background-image:url('https://marp.app/assets/hero-background.svg');background-position:center;background-repeat:no-repeat;background-size:cover;" data-marpit-pagination-total="10">
+<ul>
+<li>Armazenando variáveis em uma lista:</li>
+</ul>
+<pre is="marp-pre" data-auto-scaling="downscale-only"><code class="language-python">x = [model.addVar(<span class="hljs-string">f&#x27;x_<span class="hljs-subst">{i}</span>&#x27;</span>, vtype=<span class="hljs-string">&#x27;B&#x27;</span>) <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">10</span>)]
+</code></pre>
+<ul>
+<li>Armazenando variáveis em um dicionário:</li>
+</ul>
+<pre is="marp-pre" data-auto-scaling="downscale-only"><code class="language-python">x = {(i, j): model.addVar(<span class="hljs-string">f&#x27;x_<span class="hljs-subst">{i}</span>_<span class="hljs-subst">{j}</span>&#x27;</span>, vtype=<span class="hljs-string">&#x27;B&#x27;</span>) <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">10</span>) <span class="hljs-keyword">for</span> j <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">10</span>)}
+</code></pre>
+<ul>
+<li>Armazenando variáveis em um <em>array numpy</em>:</li>
+</ul>
+<pre is="marp-pre" data-auto-scaling="downscale-only"><code class="language-python">x = np.array([model.addVar(<span class="hljs-string">f&#x27;x_<span class="hljs-subst">{i}</span>&#x27;</span>, vtype=<span class="hljs-string">&#x27;B&#x27;</span>) <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">10</span>)])
+</code></pre>
+<ul>
+<li>Armazenando variáveis em um <em>array numpy</em> multidimensional:</li>
+</ul>
+<pre is="marp-pre" data-auto-scaling="downscale-only"><code class="language-python">x = np.array([[model.addVar(<span class="hljs-string">f&#x27;x_<span class="hljs-subst">{i}</span>_<span class="hljs-subst">{j}</span>&#x27;</span>, vtype=<span class="hljs-string">&#x27;B&#x27;</span>) <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">10</span>)] <span class="hljs-keyword">for</span> j <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">10</span>)])
+</code></pre>
+<footer>OCR - Albert E. F. Muritiba</footer>
+</section>
+</foreignObject></svg><svg data-marpit-svg="" viewBox="0 0 1280 720"><foreignObject width="1280" height="720"><section id="8" data-class="lead" data-footer="OCR - Albert E. F. Muritiba" data-paginate="true" data-background-color="#ffffff" data-background-image="url('https://marp.app/assets/hero-background.svg')" data-theme="default" data-style=".small{
+  font-size: 0.75rem;
+}
+" lang="pt-BR" class="lead" data-marpit-pagination="8" style="--class:lead;--footer:OCR - Albert E. F. Muritiba;--paginate:true;--background-color:#ffffff;--background-image:url('https://marp.app/assets/hero-background.svg');--theme:default;--style:.small{
+  font-size: 0.75rem;
+}
+;background-color:#ffffff;background-image:url('https://marp.app/assets/hero-background.svg');background-position:center;background-repeat:no-repeat;background-size:cover;" data-marpit-pagination-total="10">
+<h1 id="par%C3%A2metros-de-execu%C3%A7%C3%A3o-doc">Parâmetros de Execução <a href="https://pyscipopt.readthedocs.io/en/latest/tutorials/model.html">doc</a></h1>
+<p>Os principais parâmetros de execução podem ser configurados com o método <code>setIntParam</code> e <code>setRealParam</code>.</p>
+<pre is="marp-pre" data-auto-scaling="downscale-only"><code class="language-python">model.setRealParam(<span class="hljs-string">&quot;limits/time&quot;</span>, <span class="hljs-number">60</span>) <span class="hljs-comment"># Limite de tempo</span>
+model.setRealParam(<span class="hljs-string">&quot;limits/memory&quot;</span>, <span class="hljs-number">1024</span>) <span class="hljs-comment"># Limite de memória</span>
+model.setIntParam(<span class="hljs-string">&quot;lp/threads&quot;</span>, <span class="hljs-number">4</span>) <span class="hljs-comment"># Número de threads</span>
+</code></pre>
+<footer>OCR - Albert E. F. Muritiba</footer>
+</section>
 </foreignObject></svg><svg data-marpit-svg="" viewBox="0 0 1280 720"><foreignObject width="1280" height="720"><section id="9" data-class="lead" data-footer="OCR - Albert E. F. Muritiba" data-paginate="true" data-background-color="#ffffff" data-background-image="url('https://marp.app/assets/hero-background.svg')" data-theme="default" data-style=".small{
   font-size: 0.75rem;
 }
 " lang="pt-BR" class="lead" data-marpit-pagination="9" style="--class:lead;--footer:OCR - Albert E. F. Muritiba;--paginate:true;--background-color:#ffffff;--background-image:url('https://marp.app/assets/hero-background.svg');--theme:default;--style:.small{
   font-size: 0.75rem;
 }
-;background-color:#ffffff;background-image:url('https://marp.app/assets/hero-background.svg');background-position:center;background-repeat:no-repeat;background-size:cover;" data-marpit-pagination-total="11">
-<h1 id="problemas-avan%C3%A7ados-com-scip">Problemas Avançados com SCIP</h1>
-<p>Além do problema de <strong>mochila</strong>, o SCIP pode resolver:</p>
-<ul>
-<li><strong>MILP (Programação Linear Mista Inteira)</strong></li>
-<li><strong>MINLP (Programação Não Linear Inteira)</strong></li>
-<li><strong>Programação por Restrições (CSP)</strong></li>
-</ul>
+;background-color:#ffffff;background-image:url('https://marp.app/assets/hero-background.svg');background-position:center;background-repeat:no-repeat;background-size:cover;" data-marpit-pagination-total="10">
+<h1 id="par%C3%A2metros-de-plugins-doc">Parâmetros de <em>plugins</em> <a href="https://pyscipopt.readthedocs.io/en/latest/tutorials/model.html">doc</a></h1>
+<p>Plugins são extensões do SCIP que podem ser ativadas ou desativadas. Por exemplo, o <em>plugins</em> de corte de planos.</p>
+<pre is="marp-pre" data-auto-scaling="downscale-only"><code class="language-python"><span class="hljs-keyword">from</span> pyscipopt <span class="hljs-keyword">import</span> Model, SCIP_PARAMSETTING
+
+scip = Model()
+scip.setHeuristics(SCIP_PARAMSETTING.AGGRESSIVE)
+scip.setPresolve(SCIP_PARAMSETTING.FAST)
+scip.setEmphasis(SCIP_PARAMSETTING.FEASIBILITY)
+
+</code></pre>
 <footer>OCR - Albert E. F. Muritiba</footer>
 </section>
 </foreignObject></svg><svg data-marpit-svg="" viewBox="0 0 1280 720"><foreignObject width="1280" height="720"><section id="10" data-class="lead" data-footer="OCR - Albert E. F. Muritiba" data-paginate="true" data-background-color="#ffffff" data-background-image="url('https://marp.app/assets/hero-background.svg')" data-theme="default" data-style=".small{
@@ -175,23 +175,18 @@ solution = model.getBestSol()
 " lang="pt-BR" class="lead" data-marpit-pagination="10" style="--class:lead;--footer:OCR - Albert E. F. Muritiba;--paginate:true;--background-color:#ffffff;--background-image:url('https://marp.app/assets/hero-background.svg');--theme:default;--style:.small{
   font-size: 0.75rem;
 }
-;background-color:#ffffff;background-image:url('https://marp.app/assets/hero-background.svg');background-position:center;background-repeat:no-repeat;background-size:cover;" data-marpit-pagination-total="11">
-<h1 id="conclus%C3%A3o">Conclusão</h1>
-<p>O SCIP é uma ferramenta versátil para resolver problemas de otimização complexos, com aplicações em várias áreas como logística, indústria, e pesquisa.</p>
-<footer>OCR - Albert E. F. Muritiba</footer>
-</section>
-</foreignObject></svg><svg data-marpit-svg="" viewBox="0 0 1280 720"><foreignObject width="1280" height="720"><section id="11" data-class="lead" data-footer="OCR - Albert E. F. Muritiba" data-paginate="true" data-background-color="#ffffff" data-background-image="url('https://marp.app/assets/hero-background.svg')" data-theme="default" data-style=".small{
-  font-size: 0.75rem;
-}
-" lang="pt-BR" class="lead" data-marpit-pagination="11" style="--class:lead;--footer:OCR - Albert E. F. Muritiba;--paginate:true;--background-color:#ffffff;--background-image:url('https://marp.app/assets/hero-background.svg');--theme:default;--style:.small{
-  font-size: 0.75rem;
-}
-;background-color:#ffffff;background-image:url('https://marp.app/assets/hero-background.svg');background-position:center;background-repeat:no-repeat;background-size:cover;" data-marpit-pagination-total="11">
-<h1 id="pr%C3%B3ximos-passos">Próximos Passos</h1>
-<ul>
-<li>Explore a documentação oficial: [<a href="https://scipopt.org/doc/html/index.php">https://scipopt.org/doc/html/index.php</a>]</li>
-<li>Pratique com exemplos mais complexos (MILP, MINLP).</li>
-</ul>
+;background-color:#ffffff;background-image:url('https://marp.app/assets/hero-background.svg');background-position:center;background-repeat:no-repeat;background-size:cover;" data-marpit-pagination-total="10">
+<h1 id="callbacks-doc"><em>Callbacks</em> <a href="https://pyscipopt.readthedocs.io/en/latest/tutorials/eventhandler.html">doc</a></h1>
+<p><em>Callbacks</em> são funções que são chamadas em determinados eventos durante a resolução do problema. Por exemplo, para adicionar cortes ou <em>lazy constraints</em>.</p>
+<pre is="marp-pre" data-auto-scaling="downscale-only"><code class="language-python"><span class="hljs-keyword">from</span> pyscipopt <span class="hljs-keyword">import</span> Model, SCIP_EVENTTYPE
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">print_obj_value</span>(<span class="hljs-params">model, event</span>):
+    <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;New best solution found with objective value: {}&quot;</span>.<span class="hljs-built_in">format</span>(model.getObjVal()))
+
+m = Model()
+m.attachEventHandlerCallback(print_obj_value, [SCIP_EVENTTYPE.BESTSOLFOUND])
+m.optimize()
+</code></pre>
 <footer>OCR - Albert E. F. Muritiba</footer>
 </section>
 <script>!function(){"use strict";const t={h1:{proto:()=>HTMLHeadingElement,attrs:{role:"heading","aria-level":"1"},style:"display: block; font-size: 2em; margin-block-start: 0.67em; margin-block-end: 0.67em; margin-inline-start: 0px; margin-inline-end: 0px; font-weight: bold;"},h2:{proto:()=>HTMLHeadingElement,attrs:{role:"heading","aria-level":"2"},style:"display: block; font-size: 1.5em; margin-block-start: 0.83em; margin-block-end: 0.83em; margin-inline-start: 0px; margin-inline-end: 0px; font-weight: bold;"},h3:{proto:()=>HTMLHeadingElement,attrs:{role:"heading","aria-level":"3"},style:"display: block; font-size: 1.17em; margin-block-start: 1em; margin-block-end: 1em; margin-inline-start: 0px; margin-inline-end: 0px; font-weight: bold;"},h4:{proto:()=>HTMLHeadingElement,attrs:{role:"heading","aria-level":"4"},style:"display: block; margin-block-start: 1.33em; margin-block-end: 1.33em; margin-inline-start: 0px; margin-inline-end: 0px; font-weight: bold;"},h5:{proto:()=>HTMLHeadingElement,attrs:{role:"heading","aria-level":"5"},style:"display: block; font-size: 0.83em; margin-block-start: 1.67em; margin-block-end: 1.67em; margin-inline-start: 0px; margin-inline-end: 0px; font-weight: bold;"},h6:{proto:()=>HTMLHeadingElement,attrs:{role:"heading","aria-level":"6"},style:"display: block; font-size: 0.67em; margin-block-start: 2.33em; margin-block-end: 2.33em; margin-inline-start: 0px; margin-inline-end: 0px; font-weight: bold;"},span:{proto:()=>HTMLSpanElement},pre:{proto:()=>HTMLElement,style:"display: block; font-family: monospace; white-space: pre; margin: 1em 0; --marp-auto-scaling-white-space: pre;"}},e="data-marp-auto-scaling-wrapper",i="data-marp-auto-scaling-svg",n="data-marp-auto-scaling-container";class s extends HTMLElement{constructor(){super(),this.svgPreserveAspectRatio="xMinYMid meet";const t=t=>([e])=>{const{width:i,height:n}=e.contentRect;this[t]={width:i,height:n},this.updateSVGRect()};this.attachShadow({mode:"open"}),this.containerObserver=new ResizeObserver(t("containerSize")),this.wrapperObserver=new ResizeObserver(((...e)=>{t("wrapperSize")(...e),this.flushSvgDisplay()}))}static get observedAttributes(){return["data-downscale-only"]}connectedCallback(){var t,s,o,r,a;this.shadowRoot.innerHTML=`\n<style>\n  svg[${i}] { display: block; width: 100%; height: auto; vertical-align: top; }\n  span[${n}] { display: table; white-space: var(--marp-auto-scaling-white-space, nowrap); width: max-content; }\n</style>\n<div ${e}>\n  <svg part="svg" ${i}>\n    <foreignObject><span ${n}><slot></slot></span></foreignObject>\n  </svg>\n</div>\n    `.split(/\n\s*/).join(""),this.wrapper=null!==(t=this.shadowRoot.querySelector(`div[${e}]`))&&void 0!==t?t:void 0;const l=this.svg;this.svg=null!==(o=null===(s=this.wrapper)||void 0===s?void 0:s.querySelector(`svg[${i}]`))&&void 0!==o?o:void 0,this.svg!==l&&(this.svgComputedStyle=this.svg?window.getComputedStyle(this.svg):void 0),this.container=null!==(a=null===(r=this.svg)||void 0===r?void 0:r.querySelector(`span[${n}]`))&&void 0!==a?a:void 0,this.observe()}disconnectedCallback(){this.svg=void 0,this.svgComputedStyle=void 0,this.wrapper=void 0,this.container=void 0,this.observe()}attributeChangedCallback(){this.observe()}flushSvgDisplay(){const{svg:t}=this;t&&(t.style.display="inline",requestAnimationFrame((()=>{t.style.display=""})))}observe(){this.containerObserver.disconnect(),this.wrapperObserver.disconnect(),this.wrapper&&this.wrapperObserver.observe(this.wrapper),this.container&&this.containerObserver.observe(this.container),this.svgComputedStyle&&this.observeSVGStyle(this.svgComputedStyle)}observeSVGStyle(t){const e=()=>{const i=(()=>{const e=t.getPropertyValue("--preserve-aspect-ratio");if(e)return e.trim();return`x${(({textAlign:t,direction:e})=>{if(t.endsWith("left"))return"Min";if(t.endsWith("right"))return"Max";if("start"===t||"end"===t){let i="rtl"===e;return"end"===t&&(i=!i),i?"Max":"Min"}return"Mid"})(t)}YMid meet`})();i!==this.svgPreserveAspectRatio&&(this.svgPreserveAspectRatio=i,this.updateSVGRect()),t===this.svgComputedStyle&&requestAnimationFrame(e)};e()}updateSVGRect(){var t,e,i,n,s,o,r;let a=Math.ceil(null!==(e=null===(t=this.containerSize)||void 0===t?void 0:t.width)&&void 0!==e?e:0);const l=Math.ceil(null!==(n=null===(i=this.containerSize)||void 0===i?void 0:i.height)&&void 0!==n?n:0);void 0!==this.dataset.downscaleOnly&&(a=Math.max(a,null!==(o=null===(s=this.wrapperSize)||void 0===s?void 0:s.width)&&void 0!==o?o:0));const c=null===(r=this.svg)||void 0===r?void 0:r.querySelector(":scope > foreignObject");if(null==c||c.setAttribute("width",`${a}`),null==c||c.setAttribute("height",`${l}`),this.svg&&(this.svg.setAttribute("viewBox",`0 0 ${a} ${l}`),this.svg.setAttribute("preserveAspectRatio",this.svgPreserveAspectRatio),this.svg.style.height=a<=0||l<=0?"0":""),this.container){const t=this.svgPreserveAspectRatio.toLowerCase();this.container.style.marginLeft=t.startsWith("xmid")||t.startsWith("xmax")?"auto":"0",this.container.style.marginRight=t.startsWith("xmi")?"auto":"0"}}}const o=(t,{attrs:e={},style:i})=>class extends t{constructor(...t){super(...t);for(const[t,i]of Object.entries(e))this.hasAttribute(t)||this.setAttribute(t,i);this.attachShadow({mode:"open"})}static get observedAttributes(){return["data-auto-scaling"]}connectedCallback(){this._update()}attributeChangedCallback(){this._update()}_update(){const t=i?`<style>:host { ${i} }</style>`:"";let e="<slot></slot>";const{autoScaling:n}=this.dataset;if(void 0!==n){e=`<marp-auto-scaling exportparts="svg:auto-scaling" ${"downscale-only"===n?"data-downscale-only":""}>${e}</marp-auto-scaling>`}this.shadowRoot.innerHTML=t+e}};let r;const a=Symbol();let l;const c="marpitSVGPolyfill:setZoomFactor,",d=Symbol(),g=Symbol();const h=()=>{const t="Apple Computer, Inc."===navigator.vendor,e=t?[u]:[],i={then:e=>(t?(async()=>{if(void 0===l){const t=document.createElement("canvas");t.width=10,t.height=10;const e=t.getContext("2d"),i=new Image(10,10),n=new Promise((t=>{i.addEventListener("load",(()=>t()))}));i.crossOrigin="anonymous",i.src="data:image/svg+xml;charset=utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2210%22%20height%3D%2210%22%20viewBox%3D%220%200%201%201%22%3E%3CforeignObject%20width%3D%221%22%20height%3D%221%22%20requiredExtensions%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2Fxhtml%22%3E%3Cdiv%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2Fxhtml%22%20style%3D%22width%3A%201px%3B%20height%3A%201px%3B%20background%3A%20red%3B%20position%3A%20relative%22%3E%3C%2Fdiv%3E%3C%2FforeignObject%3E%3C%2Fsvg%3E",await n,e.drawImage(i,0,0),l=e.getImageData(5,5,1,1).data[3]<128}return l})().then((t=>{null==e||e(t?[u]:[])})):null==e||e([]),i)};return Object.assign(e,i)};let p,m;function u(t){const e="object"==typeof t&&t.target||document,i="object"==typeof t?t.zoom:t;window[g]||(Object.defineProperty(window,g,{configurable:!0,value:!0}),document.body.style.zoom=1.0001,document.body.offsetHeight,document.body.style.zoom=1,window.addEventListener("message",(({data:t,origin:e})=>{if(e===window.origin)try{if(t&&"string"==typeof t&&t.startsWith(c)){const[,e]=t.split(","),i=Number.parseFloat(e);Number.isNaN(i)||(m=i)}}catch(t){console.error(t)}})));let n=!1;Array.from(e.querySelectorAll("svg[data-marpit-svg]"),(t=>{var e,s,o,r;t.style.transform||(t.style.transform="translateZ(0)");const a=i||m||t.currentScale||1;p!==a&&(p=a,n=a);const l=t.getBoundingClientRect(),{length:c}=t.children;for(let i=0;i<c;i+=1){const n=t.children[i];if(n.getScreenCTM){const t=n.getScreenCTM();if(t){const i=null!==(s=null===(e=n.x)||void 0===e?void 0:e.baseVal.value)&&void 0!==s?s:0,c=null!==(r=null===(o=n.y)||void 0===o?void 0:o.baseVal.value)&&void 0!==r?r:0,d=n.children.length;for(let e=0;e<d;e+=1){const s=n.children[e];if("SECTION"===s.tagName){const{style:e}=s;e.transformOrigin||(e.transformOrigin=`${-i}px ${-c}px`),e.transform=`scale(${a}) matrix(${t.a}, ${t.b}, ${t.c}, ${t.d}, ${t.e-l.left}, ${t.f-l.top}) translateZ(0.0001px)`;break}}}}}})),!1!==n&&Array.from(e.querySelectorAll("iframe"),(({contentWindow:t})=>{null==t||t.postMessage(`${c}${n}`,"null"===window.origin?"*":window.origin)}))}function v({once:t=!1,target:e=document}={}){const i=function(t=document){if(t[d])return t[d];let e=!0;const i=()=>{e=!1,delete t[d]};Object.defineProperty(t,d,{configurable:!0,value:i});let n=[],s=!1;(async()=>{try{n=await h()}finally{s=!0}})();const o=()=>{for(const e of n)e({target:t});s&&0===n.length||e&&window.requestAnimationFrame(o)};return o(),i}(e);return t?(i(),()=>{}):i}p=1,m=void 0;const b=Symbol(),w=(e=document)=>{if("undefined"==typeof window)throw new Error("Marp Core's browser script is valid only in browser context.");if(((e=document)=>{const i=window[a];i||customElements.define("marp-auto-scaling",s);for(const n of Object.keys(t)){const s=`marp-${n}`,a=t[n].proto();null!=r||(r=!!document.createElement("div",{is:"marp-auto-scaling"}).outerHTML.startsWith("<div is")),r&&a!==HTMLElement?i||customElements.define(s,o(a,{style:t[n].style}),{extends:n}):(i||customElements.define(s,o(HTMLElement,t[n])),e.querySelectorAll(`${n}[is="${s}"]`).forEach((t=>{t.outerHTML=t.outerHTML.replace(new RegExp(`^<${n}`,"i"),`<${s}`).replace(new RegExp(`</${n}>$`,"i"),`</${s}>`)})))}window[a]=!0})(e),e[b])return e[b];const i=v({target:e}),n=()=>{i(),delete e[b]},l=Object.assign(n,{cleanup:n,update:()=>w(e)});return Object.defineProperty(e,b,{configurable:!0,value:l}),l},y=document.currentScript;w(y?y.getRootNode():document)}();

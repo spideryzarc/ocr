@@ -82,6 +82,28 @@ print("Valor da mochila =", model.getObjVal())
 
 --- 
 
+- Armazenando variáveis em uma lista:
+```python
+x = [model.addVar(f'x_{i}', vtype='B') for i in range(10)]
+```
+
+- Armazenando variáveis em um dicionário:
+```python
+x = {(i, j): model.addVar(f'x_{i}_{j}', vtype='B') for i in range(10) for j in range(10)}
+```
+
+- Armazenando variáveis em um *array numpy*:
+```python
+x = np.array([model.addVar(f'x_{i}', vtype='B') for i in range(10)])
+```
+
+- Armazenando variáveis em um *array numpy* multidimensional:
+```python
+x = np.array([[model.addVar(f'x_{i}_{j}', vtype='B') for i in range(10)] for j in range(10)])
+```
+
+---
+
 # Parâmetros de Execução [doc](https://pyscipopt.readthedocs.io/en/latest/tutorials/model.html)
 
 Os principais parâmetros de execução podem ser configurados com o método `setIntParam` e `setRealParam`.

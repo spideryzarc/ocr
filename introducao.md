@@ -75,14 +75,14 @@ Neste módulo, vamos estudar problemas de **otimização combinatória** e **oti
 
 ---
 
-# Exemplos de Problemas de Otimização
+# Problemas de Otimização
 
-- **Problema da Mochila:** Seleção de itens com maior valor, respeitando restrições de peso.
-- **Cobertura de Conjuntos:** Seleção do menor número de subconjuntos que cubra todos os elementos.
-- **Empacotamento/Corte de Estoque:** Corte de materiais para minimizar desperdício ou empacotamento de itens em caixas.
-- **Problema do Caixeiro Viajante:** Rota mais curta que visite todas as cidades uma vez.
+Neste primeiro módulo, vamos estudar problemas de otimização combinatória e otimização em redes, que são **problemas clássicos** em pesquisa operacional e ciência da computação.
+
+Vamos discutir conceitos, modelos matemáticos e implementações computacionais usando *solvers* de programação linear inteira.
 
 ---
+
 
 ## Problema da Mochila (*Knapsack*)
 
@@ -110,6 +110,17 @@ $$
 $$
 
 ---
+
+### Preambulo Python
+
+```python
+from pyscipopt import Model
+from pyscipopt import quicksum as qsum
+import numpy as np
+```
+
+---
+
 ### Modelo PLI Implementado em Python (SCIP)
 
 ```python
@@ -152,6 +163,9 @@ Se os conjuntos tiverem **custos associados**, o objetivo é **minimizar o custo
   - $c_j$ (custo do subconjunto $s_j$),
   - $A_{ij}$ (1 se o elemento $i$ está no subconjunto $j$, 0 caso contrário).
 - **Variáveis de Decisão:** $x_j \in \{0,1\}$, onde $x_j = 1$ se o subconjunto $j$ é selecionado.
+
+---
+
 - **Modelo:**
 $$
 \begin{align*}
@@ -188,7 +202,7 @@ def set_cover(n:int,costs:list,A:np.array)->tuple:
 
 ---
 
-## Empacotamento/Corte de Estoque (*Cutting Stock*)
+## Empacotamento (*Bin Packing*)
 
 Dado um **conjunto de itens** e um conjunto de pacotes (*bins*) com **tamanhos fixos**, 
 o problema de empacotamento consiste em distribuir os itens nos pacotes de forma a **minimizar o número de pacotes utilizados**.
@@ -204,7 +218,7 @@ Do ponto de vista do corte, o problema consiste em **cortar** um **material** em
   - $J=\{1,2,...,m\}$ de pacotes.
 - **Parâmetros:** 
   - $w_i$ (demanda do item $i$),
-  - $c_j$ (capacidade do pacote $j$),
+  - $W_j$ (capacidade do pacote $j$),
 - **Variáveis de Decisão:** 
   - $x_{ij} \in \{0,1\}$, onde $x_{ij} = 1$ se o item $i$ é colocado no pacote $j$.
   - $y_j \in \{0,1\}$, onde $y_j = 1$ se o pacote $j$ é utilizado.
@@ -216,11 +230,14 @@ Do ponto de vista do corte, o problema consiste em **cortar** um **material** em
 $$
 \begin{align*}
 \min & \sum_{j \in J} y_j \\
-\text{s.a.} & \sum_{i \in I} w_i x_{ij} \leq c_j y_j \quad \forall j \in J \\
+\text{s.a.} & \sum_{i \in I} w_i x_{ij} \leq W_j y_j \quad \forall j \in J \\
 & \sum_{j \in J} x_{ij} = 1 \quad \forall i \in I \\
 & x_{ij}, y_j \in \{0,1\} \quad \forall i \in I, j \in J
 \end{align*}
 $$
+
+- ***Strengthening:*** opcionalmente, podemos adicionar a restrição:
+  - $x_{ij} \leq y_j$ , $\forall i \in I, j \in J$ se quisermos que o item $i$ seja colocado no pacote $j$ apenas se o pacote $j$ for utilizado.
 
 ---
 
@@ -241,12 +258,27 @@ def bpp(n:int,m:int,w:list,W:list)->tuple:
     # optimize
     model.optimize()
     min_bins = model.getObjVal()
-    bin_assignment = [[j for j in range(m) if model.getVal(x[i,j]) > 0.5][0] for i in range(n)]
+    bin_assignment = [next(j for j in range(m) if model.getVal(x[i,j]) > 0.5) 
+                            for i in range(n)]
     return min_bins, bin_assignment
 ```
 ---
 
+### Simetrias
 
+- **Simetrias:** São soluções que são equivalentes entre si, mas que são representadas de forma diferente.
+- **Exemplo:** Supondo uma solução com $k$ pacotes:
+  - temos $\binom{m}{k}$ formas de escolher $k$ pacotes de $m$ a serem utilizados,
+  - e para cada escolha, temos $k!$ formas de ordenar os pacotes.
+  - Assim, temos $\binom{m}{k}k!$ soluções equivalentes.
+
+---
+
+- Para evitar simetrias, podemos adicionar restrições de corte.
+  - forçar os pacotes a serem utilizados em ordem crescente.
+    - $y_j \leq y_{j+1}, \quad \forall j \in J/\{m\}$.
+  - 
+---
 
 ## Caixeiro Viajante
 
