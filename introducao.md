@@ -369,7 +369,7 @@ $$
 \min & \sum_{(i,j) \in A} d_{ij} x_{ij} \\
 \text{s.a.} & \sum_{j \in I} x_{ij} = 1 \quad \forall i \in I \\
 & \sum_{i \in I} x_{ij} = 1 \quad \forall j \in I \\
-& \sum_{(i,j) \in S} x_{ij} \leq \sharp(S)-1 \quad \forall S \subsetneq I, S \neq \emptyset \\
+& \sum_{(i,j) \in S}^{i\neq j} x_{ij} \leq \sharp(S)-1 \quad \forall S \subsetneq I, S \neq \emptyset \\
 & x_{ij} \in \{0,1\} \quad \forall (i,j) \in A
 \end{align*}
 $$
@@ -393,7 +393,7 @@ $$
  * Na prática, **relaxamos** a restrição de *subtour elimination* e resolvemos o problema iterativamente,
  * A cada iteração, identificamos um *subtour* e **adicionamos** uma restrição para eliminá-lo,
  * O processo é repetido até que não existam mais subtours.
- * As restrições relaxadas são chamadas de **lazy constraints**.
+ * As restrições relaxadas são chamadas de ***lazy constraints***.
  * Não confundir com *cutting planes*, que são restrições adicionadas ao modelo para melhorar a convergência.
    * ***Lazy constraints*** são necessárias para garantir a **correção** do modelo (sem elas, o modelo pode retornar soluções inválidas),
    * ***Cutting planes*** são utilizadas para **melhorar a eficiência** do modelo.
@@ -405,7 +405,7 @@ $$
 
 Dado um **grafo conexo** e **ponderado**, o problema da árvore geradora mínima consiste em encontrar a **árvore** que conecta todos os vértices com o **menor custo total**.
 
-![bg left:50% fit](https://upload.wikimedia.org/wikipedia/commons/d/d2/Minimum_spanning_tree.svg)
+![bg left:50% fit](images/mst.svg) 
 
 <br>
 
@@ -422,13 +422,13 @@ Dado um **grafo conexo** e **ponderado**, o problema da árvore geradora mínima
 
 ---
 
-- **Modelo:** Eliminação de Subciclos
+- **Modelo:** Eliminação de Ciclos
 
 $$
 \begin{align*}
 \min & \sum_{(i,j) \in A} c_{ij} x_{ij} \\
 \text{s.a.} & \sum_{(i,j) \in A} x_{ij} = n-1 \\
-& \sum_{(i,j) \in S} x_{ij} \leq \sharp(S)-1 \quad \forall S \subsetneq I, S \neq \emptyset \\
+& \sum_{(i,j) \in S} x_{ij} \leq \sharp(S)-1 \quad \forall S \subset I, S \neq \emptyset \\
 & x_{ij} \in \{0,1\} \quad \forall (i,j) \in A
 \end{align*}
 $$
@@ -443,9 +443,10 @@ $$
 $$
 
 > Onde $\delta(S)$ é o conjunto de arestas que conectam o subconjunto $S$ ao restante do grafo.
+
 > A restrição de *subtour elimination* é **exponencial**, o que torna o modelo impraticável para **instâncias** grandes.
 
-- Para resolver o problema de forma eficiente, utilizamos algoritmos como **Prim** e **Kruskal**.
+>Para resolver o problema de forma eficiente, utilizamos algoritmos como **Prim** e **Kruskal** que veremos mais adiante.
 
 ---
 
