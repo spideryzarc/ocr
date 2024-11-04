@@ -6,7 +6,7 @@ class: lead
 footer: "OCR - Albert E. F. Muritiba"
 paginate: true
 backgroundColor: #ffffff
-backgroundImage: url('https://marp.app/assets/hero-background.svg')
+backgroundImage: url('https://spideryzarc.github.io/labCD/bg/light_curve.jpg')
 style: |
   .small{
     font-size: 0.75rem;
@@ -17,7 +17,12 @@ style: |
 
 # Introdução
 
-Neste módulo, vamos estudar problemas de **otimização combinatória** e **otimização em redes**, discutindo conceitos, modelos matemáticos e implementações computacionais usando *solvers* de programação linear inteira.
+Neste módulo, vamos estudar problemas de **otimização combinatória** e **otimização em grafos**, discutindo conceitos, modelos matemáticos e implementações computacionais usando *solvers* de **programação linear inteira**.
+
+![bg right:40% fit](empty.svg)
+
+<!-- _backgroundImage: url('https://spideryzarc.github.io/labCD/bg/light_lamp.jpg') -->
+<!-- _footer: "" -->
 
 ---
 
@@ -150,7 +155,7 @@ Dado um **conjunto de elementos** e um **conjunto de subconjuntos**, o problema 
 
 Se os conjuntos tiverem **custos associados**, o objetivo é **minimizar o custo total** dos subconjuntos selecionados.
 
-![bg left height:500](https://upload.wikimedia.org/wikipedia/commons/4/4b/Set-Cover.svg)
+![bg right:50% fit drop-shadow 95%](images/set_cover.png)
 
 ---
 
@@ -200,6 +205,7 @@ def set_cover(n:int,costs:list,A:np.array)->tuple:
     return min_cost, subsets
 ```
 
+
 ---
 
 ## Empacotamento (*Bin Packing*)
@@ -208,6 +214,9 @@ Dado um **conjunto de itens** e um conjunto de pacotes (*bins*) com **tamanhos f
 o problema de empacotamento consiste em distribuir os itens nos pacotes de forma a **minimizar o número de pacotes utilizados**.
 
 Do ponto de vista do corte, o problema consiste em **cortar** um **material** em **peças menores** de forma a **minimizar o desperdício**.
+
+
+![bg left:50% fit drop-shadow 95%](images/bpp.png)
 
 ---
 
@@ -285,6 +294,8 @@ def bpp(n:int,m:int,w:list,W:list)->tuple:
 Dado um **conjunto de cidades** e as **distâncias** entre elas, o problema do caixeiro viajante consiste em encontrar a **rota mais curta** que **visite todas as cidades uma vez** e retorne à cidade de origem.
 
 O problema é **NP-Completo**, o que significa que não existe um algoritmo eficiente para resolvê-lo em tempo polinomial.
+
+![bg right:50% fit drop-shadow 95%](images/tsp.png)
 
 ---
 
