@@ -55,13 +55,13 @@ def tsp_subtour(c: np.array, use_lazy: bool = False) -> tuple:
         model.addCons(qsum(x[j, i] for j in range(n) if i != j) == 1)
 
     if use_lazy:
-        pass # TODO: add callback to add subtour elimination constraints as lazy constraints in SCIP
+        pass  # TODO: add callback to add subtour elimination constraints as lazy constraints in SCIP
     else:
         # All possible subsets of nodes of size 2 to n-1 as Python generator
-        S = (s for k in range(2, n) for s in comb(range(n), k))
+        S = (s for k in range(2, n//2) for s in comb(range(n), k))
         # Add subtour elimination constraints
         for s in S:
-            model.addCons(qsum(x[i, j] for i, j in product(s, s) if i != j) <= len(s)-1)
+            model.addCons(qsum(x[i, j] for i in s for j in s if i != j) <= len(s) - 1)
     # remove verbose
     # model.hideOutput()
     # optimize
@@ -116,7 +116,7 @@ def make_random_instance(n: int = 10) -> tuple:
 
 
 if __name__ == "__main__":
-    points, c = make_random_instance(10)
+    points, c = make_random_instance(15)
     # min_cost, tour = tsp_mtz(c)
     min_cost, tour = tsp_subtour(c, use_lazy=False)
 
