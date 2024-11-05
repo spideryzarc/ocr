@@ -55,7 +55,7 @@ def tsp_subtour(c: np.array, use_lazy: bool = False) -> tuple:
         model.addCons(qsum(x[j, i] for j in range(n) if i != j) == 1)
 
     if use_lazy:
-        pass # TODO: add lazy constraints and callback
+        pass # TODO: add callback to add subtour elimination constraints as lazy constraints in SCIP
     else:
         # All possible subsets of nodes of size 2 to n-1 as Python generator
         S = (s for k in range(2, n) for s in comb(range(n), k))
