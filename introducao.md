@@ -42,15 +42,28 @@ Neste módulo, vamos estudar problemas de **otimização combinatória** e **oti
 - Implementação de algoritmos (30%)
 - Projeto final (30%)
 
+<br><br>
+
+> Sujeito a alterações.
 ---
 
 ## Bibliografia
-- AHUJA, R.K.; MAGNANTI, T.L.; ORLIN, J.B. *Network Flows: Theory, Algorithms, and Applications*. Prentice Hall, USA, 1993.
-- BAZARAA, M.; JARVIS, A.; SHERALI, H. *Linear Programming and Network Flows*. Wiley, 4ª. edição, 2011.
-- SZWARCFITER, J. *Grafos e Algoritmos Computacionais*. Campus, 2ª. Edição, 1986.
-- ARENALES, M.; ARMENTANO, V.; MORABITO, R; YANASSE, H. *Pesquisa Operacional*. Editora Campus (Elsevier), 2ª. Edição, 2011.
-- GOLDBARG, M.C. e LUNNA, H.P.L. *Otimização Combinatória e Programação Linear: Modelos e Algoritmos*. 2ª Edição. Editora Campus Ltda, Rio de Janeiro, 2005.
-- PAPADIMITRIOU, C.H.; STEIGLITZ, K. *Combinatorial Optimization: Algorithms and Complexity*. Dover Publications, 1998.
+- AHUJA, R.K.; MAGNANTI, T.L.; ORLIN, J.B. ***Network Flows: Theory, Algorithms, and Applications***. Prentice Hall, USA, 1993.
+- BAZARAA, M.; JARVIS, A.; SHERALI, H. ***Linear Programming and Network Flows***. Wiley, 4ª. edição, 2011.
+- SZWARCFITER, J. ***Grafos e Algoritmos Computacionais***. Campus, 2ª. Edição, 1986.
+
+
+![bg right:35% fit](empty.svg)
+<!-- _backgroundImage: url('https://spideryzarc.github.io/labCD/bg/light_book.jpg') -->
+
+---
+
+- ARENALES, M.; ARMENTANO, V.; MORABITO, R; YANASSE, H. ***Pesquisa Operacional***. Editora Campus (Elsevier), 2ª. Edição, 2011.
+- GOLDBARG, M.C. e LUNNA, H.P.L. ***Otimização Combinatória e Programação Linear: Modelos e Algoritmos***. 2ª Edição. Editora Campus Ltda, Rio de Janeiro, 2005.
+- PAPADIMITRIOU, C.H.; STEIGLITZ, K. ***Combinatorial Optimization: Algorithms and Complexity***. Dover Publications, 1998.
+
+![bg right:35% fit](empty.svg)
+<!-- _backgroundImage: url('https://spideryzarc.github.io/labCD/bg/light_book.jpg') -->
 
 ---
 
@@ -77,6 +90,8 @@ Neste módulo, vamos estudar problemas de **otimização combinatória** e **oti
 * No geral, uma solução para um problema de otimização combinatória pode ser visto como uma **sequência de decisões discretas** que levam a um resultado ótimo.
 <br>
 * **Aplicações:** Planejamento logístico, design de circuitos, alocação de recursos, etc.
+
+![bg right:40% ](images/robo.jpg)
 
 ---
 
@@ -155,7 +170,7 @@ Dado um **conjunto de elementos** e um **conjunto de subconjuntos**, o problema 
 
 Se os conjuntos tiverem **custos associados**, o objetivo é **minimizar o custo total** dos subconjuntos selecionados.
 
-![bg right:50% fit drop-shadow 95%](images/set_cover.png)
+![bg right:40% fit drop-shadow 95%](images/set_cover.png)
 
 ---
 
@@ -283,10 +298,17 @@ def bpp(n:int,m:int,w:list,W:list)->tuple:
 
 ---
 
-- Para evitar simetrias, podemos adicionar restrições de corte.
-  - forçar os pacotes a serem utilizados em ordem crescente.
-    - $y_j \leq y_{j+1}, \quad \forall j \in J/\{m\}$.
-  - 
+- Para diminuir o número de soluções equivalentes, podemos adicionar **restrições de corte** ao modelo.
+  - **Alternativa 1:** A soma dos pesos dos itens em um pacote deve ser **decrescente**.
+    $$
+    \sum_{i \in I} w_i x_{ij} \leq \sum_{i \in I} w_i x_{ij'} \quad \forall j < j'
+    $$
+  - **Alternativa 2:** O item $i$ só pode ser colocado no pacote $j$ se $j\leq i$. (precisa $n = m$)
+    $$
+    x_{ij} = 0 \quad \forall i \in I, j \in J, j > i
+    $$
+   
+> As duas alternativas não funcionam juntas, pois pode tornar o modelo inviável.
 ---
 
 ## Caixeiro Viajante
@@ -387,6 +409,9 @@ $$
 \end{align*}
 $$
 
+- **Dica:** $S$ pode ser limitado por $\sharp(S) \leq \lfloor n/2 \rfloor$ para reduzir o número de restrições pela metade. Pois só pode haver subtours maiores que $n/2$ cidades se houver subtours menores que $n/2$ cidades.
+- Isso **não reduz a complexidade** do modelo, mas pode torná-lo mais eficiente um pouco.
+ 
 
 ---
 
