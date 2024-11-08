@@ -104,7 +104,7 @@ Vamos discutir conceitos, modelos matemáticos e implementações computacionais
 ---
 
 
-## Problema da Mochila (*Knapsack*)
+## Problema da Mochila (*knapsack*)
 
 Dados um **conjunto de itens**, cada um com um **peso** e um **valor**, e uma mochila com **capacidade máxima**, o problema da mochila consiste em selecionar itens para **maximizar o valor total**, **sem exceder a capacidade** da mochila.
 
@@ -223,7 +223,7 @@ def set_cover(n:int,costs:list,A:np.array)->tuple:
 
 ---
 
-## Empacotamento (*Bin Packing*)
+## Empacotamento <br>(*bin packing*)
 
 Dado um **conjunto de itens** e um conjunto de pacotes (*bins*) com **tamanhos fixos**, 
 o problema de empacotamento consiste em distribuir os itens nos pacotes de forma a **minimizar o número de pacotes utilizados**.
@@ -311,13 +311,13 @@ def bpp(n:int,m:int,w:list,W:list)->tuple:
 > As duas alternativas não funcionam juntas, pois pode tornar o modelo inviável.
 ---
 
-## Caixeiro Viajante
+## Problema do Caixeiro Viajante <br>(*traveling salesman problem*)
 
 Dado um **conjunto de cidades** e as **distâncias** entre elas, o problema do caixeiro viajante consiste em encontrar a **rota mais curta** que **visite todas as cidades uma vez** e retorne à cidade de origem.
 
 O problema é **NP-Completo**, o que significa que não existe um algoritmo eficiente para resolvê-lo em tempo polinomial.
 
-![bg right:50% fit drop-shadow 95%](images/tsp.png)
+![bg right:40% fit drop-shadow 95%](images/tsp.png)
 
 ---
 
@@ -426,7 +426,7 @@ $$
 
 ---
 
-## Árvore Geradora Mínima
+## Árvore Geradora Mínima <br> (*minimum spanning tree*)
 
 Dado um **grafo conexo** e **ponderado**, o problema da árvore geradora mínima consiste em encontrar a **árvore** que conecta todos os vértices com o **menor custo total**.
 
@@ -475,11 +475,11 @@ $$
 
 ---
 
-## Caminho Mínimo
+## Caminho Mínimo <br> (*shortest path*)
 
 Dado um **grafo** com **arestas ponderadas** e um **vértice de origem**, o problema do caminho mínimo consiste em encontrar o **caminho de menor custo** entre o vértice de origem e todos os outros vértices ou um vértice de destino.
 
-![bg left:50% fit](https://upload.wikimedia.org/wikipedia/commons/5/57/Dijkstra_Animation.gif)
+![bg left:50% fit drop-shadow 95%](images/shortest_path.png)
 
 ---
 
@@ -489,15 +489,15 @@ Dado um **grafo** com **arestas ponderadas** e um **vértice de origem**, o prob
   - $I=\{1,2,...,n\}$ de vértices,
   - $A=\{(i,j): i,j \in I\}$ de arestas.
 - **Parâmetros:** 
-  - $c_{ij}$ (custo da aresta $(i,j)$),
-  - $s$ (vértice de origem).
-  - $t$ (vértice de destino).
+  - $c_{ij}$ : custo da aresta $(i,j)$,
+  - $s$ : vértice de origem.
+  - $t$ : vértice de destino.
 - **Variáveis de Decisão:** 
   - $x_{ij} \in \{0,1\}$, onde $x_{ij} = 1$ se a aresta $(i,j)$ é selecionada.
 
 ---
 
-- **Modelo:**  origem-destino
+- **Modelo:**  
 
 $$
 \begin{align*}
@@ -510,86 +510,53 @@ $$
 \end{align*}
 $$
 
+---
+
+## Fluxo Máximo <br> (*maximum flow*)
+
+Dado um **grafo** com **capacidades** nas arestas e dois vértices especiais, o problema do fluxo máximo consiste em encontrar o **fluxo máximo** que pode ser enviado do vértice de **origem** ao vértice de **destino**.
+
+
+![bg right:30% fit drop-shadow 95%](images/max_flow.png)
 
 ---
 
-- **Modelo:**  origem-todos
-  - Seja a variável $y_{ij}$ um fluxo hipotético entre os vértices $i$ e $j$.
+### Modelos de Programação Linear Inteira
+
+- **Conjuntos:** 
+  - $I=\{1,2,...,n\}$ de vértices,
+  - $A=\{(i,j): i,j \in I\}$ de arestas.
+- **Parâmetros:** 
+  - $c_{ij}$ : capacidade da aresta $(i,j)$,
+  - $s$ : vértice de origem.
+  - $t$ : vértice de destino.
+- **Variáveis de Decisão:**
+  - $x_{ij} \in \mathbb{R}^+$, onde $x_{ij}$ é o fluxo na aresta $(i,j)$.   
+
+---
+
+- **Modelo:**
+
 $$
 \begin{align*}
-\min & \sum_{(i,j) \in A} c_{ij} x_{ij} \\
+\max & \sum_{j \in I} x_{sj} \\
 \text{s.a.} & \\
-& y_{ij} \leq (n-1)x_{ij} \quad \forall (i,j) \in A \\
-& \sum_{j \in I}^{j\neq i} y_{ij} - \sum_{j \in I}^{j\neq i} y_{ji} = \begin{cases} 1 & \text{se } i=s \\ -1 & \text{se } i=t \\ 0 & \text{caso contrário} \end{cases} \quad \forall i \in I \\
-& x_{ij} \in \{0,1\} \quad \forall (i,j) \in A \\
-& y_{ij} \geq 0 \quad \forall (i,j) \in A
+& \sum_{j \in I} x_{ij} - \sum_{j \in I} x_{ji} = 0 \quad \forall i \in I / \{s,t\} \\
+& \sum_{j \in I} x_{sj} = \sum_{j \in I} x_{jt} \\
+& 0 \leq x_{ij} \leq c_{ij} \quad \forall (i,j) \in A
 \end{align*}
 $$
 
 
-
 ---
 
-# Problemas de Otimização em Redes
-- **Problema de Caminho Mínimo:** Encontrar o caminho de menor custo entre dois nós em um grafo.
-- **Problema de Fluxo Máximo:** Quantidade máxima de fluxo de uma fonte a um destino em uma rede.
-- **Problema da Árvore Geradora Mínima:** Conectar todos os nós com o menor custo total.
+# Conclusão
 
----
+Neste módulo, estudamos problemas clássicos de otimização combinatória e otimização em grafos, discutindo conceitos, modelos matemáticos e implementações computacionais usando *solvers* de programação linear inteira.
 
-## Caminho Mínimo
-
-<!-- TODO: colocar imagem didática do problema de caminho mínimo -->
-
-![height:500](https://upload.wikimedia.org/wikipedia/commons/5/57/Dijkstra_Animation.gif)
-
----
-
-## Fluxo Máximo
-
-<!-- TODO: colocar imagem didática do problema de fluxo máximo -->
-![height:500](https://upload.wikimedia.org/wikipedia/commons/5/5d/Maxflow.png)
-
----
+No próximo módulo, vamos estudar algoritmos clássicos para resolver esses problemas, como Dijkstra, Floyd-Warshall, Prim, Kruskal, Ford-Fulkerson, entre outros.
 
 
----
 
-# Importância da Otimização Combinatória e Redes
 
-- **Eficiência Computacional:** Otimizar recursos, tempo e energia em diversos sistemas.
-- **Tomada de Decisões:** Aplicações em engenharia, economia, transportes, e mais.
-- **Resolução de Problemas Reais:** Aplicações em logística, telecomunicações, e planejamento urbano.
-
----
-
-# Estrutura Matemática de Grafos
-- **Grafo:** Conjunto de vértices (nós) e arestas (conexões).
-- **Tipos de Grafos:** Dirigidos e não dirigidos, ponderados e não ponderados.
-- **Exemplo:** Exibição de um grafo simples (grafo de transporte).
-
----
-
-# Aplicações Clássicas em Engenharia
-- **Redes de Transporte:** Otimização de rotas, redes rodoviárias.
-- **Telecomunicações:** Roteamento de dados, redes de comunicação.
-- **Planejamento Urbano:** Design de redes de água, energia e esgoto.
-
----
-
-# Atividade Prática
-- **Discussão em Grupo:** Identificar problemas de otimização combinatória e redes que poderiam ser encontrados no dia a dia.
-- **Exemplo:** Planejamento de rotas de entrega ou distribuição de internet.
-
----
-
-# Leituras Recomendadas
-- **Szwarcfiter (Cap. 1):** Introdução à Teoria de Grafos
-- **Ahuja et al. (Cap. 1):** Fundamentos de Fluxos em Redes
-
----
-
-# Próxima Aula
-- **Tema:** Programação Linear Inteira
-- **Tópicos:** Fundamentos e formulações básicas, *solvers* de PLI e exemplos práticos.
 
