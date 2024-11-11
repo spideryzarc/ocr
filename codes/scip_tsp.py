@@ -1,4 +1,4 @@
-from pyscipopt import Model
+from pyscipopt import Model, SCIP_EVENTTYPE
 from pyscipopt import quicksum as qsum
 import numpy as np
 import matplotlib.pyplot as plt
@@ -46,7 +46,10 @@ def tsp_subtour(c: np.array, use_lazy: bool = False) -> tuple:
     '''
     n = c.shape[0]
     model = Model("tsp")
-    x = {(i, j): model.addVar(vtype="B") for i in range(n) for j in range(n) if i != j}
+    if use_lazy:
+        x = {(i, j): model.addVar(vtype="B") for i in range(n) for j in range(n) if i != j}
+    else:
+        x = {(i, j): model.addVar(vtype="C", lb=0, ub=1 ) for i in range(n) for j in range(n) if i != j}
     # add objective function
     model.setObjective(qsum(c[i, j]*x[i, j] for i in range(n) for j in range(n) if i != j), "minimize")
     # add constraints
@@ -55,7 +58,29 @@ def tsp_subtour(c: np.array, use_lazy: bool = False) -> tuple:
         model.addCons(qsum(x[j, i] for j in range(n) if i != j) == 1)
 
     if use_lazy:
-        pass  # TODO: add callback to add subtour elimination constraints as lazy constraints in SCIP
+        # callback function
+        def callback(model, event):
+            if event != SCIP_EVENTTYPE.BESTSOLFOUND:
+                return
+            print("Callback")
+            #fill next_of[i] with the next node in the tour after node i
+            next_of = [next(j for j in range(n) if i!=j and model.getVal(x[i, j]) > 0.5)
+                       for i in range(n)]
+            print(next_of)
+            # find a subtour
+            route = [0]
+            while True:
+                if next_of[route[-1]] == route[0]:
+                    break
+                route.append(next_of[route[-1]])
+            print(route)
+            # if the subtour is not the whole tour, add a subtour elimination constraint
+            if len(route) < n:
+                model.cbLazy(qsum(x[i, j] for i in route for j in route if i != j) <= len(route) - 1)
+                
+        # add callback to add subtour elimination constraints as lazy constraints in model.includeSubtourElimination(subtour_elimination, "SubtourElimination", "Eliminate subtours")
+        model.attachEventHandlerCallback(callback, [SCIP_EVENTTYPE.BESTSOLFOUND])
+        # model.includeEventHandler(callback, "SubtourElimination", "Eliminate subtours",[SCIP_EVENTTYPE.BESTSOLFOUND])
     else:
         # All possible subsets of nodes of size 2 to n-1 as Python generator
         S = (s for k in range(2, n//2) for s in comb(range(n), k))
@@ -63,7 +88,7 @@ def tsp_subtour(c: np.array, use_lazy: bool = False) -> tuple:
         for s in S:
             model.addCons(qsum(x[i, j] for i in s for j in s if i != j) <= len(s) - 1)
     # remove verbose
-    # model.hideOutput()
+    model.hideOutput()
     # optimize
     model.optimize()
     min_cost = model.getObjVal()
@@ -116,9 +141,9 @@ def make_random_instance(n: int = 10) -> tuple:
 
 
 if __name__ == "__main__":
-    points, c = make_random_instance(15)
+    points, c = make_random_instance(17)
     # min_cost, tour = tsp_mtz(c)
-    min_cost, tour = tsp_subtour(c, use_lazy=False)
+    min_cost, tour = tsp_subtour(c, use_lazy=True)
 
     print("Min Cost:", min_cost)
 
