@@ -103,10 +103,11 @@ def tsp_adhoc_subtours(c: np.array, plot=False, points=None, delay=0) -> tuple:
     unfeasible = True
     if plot:
         plt.ion()  # enable interactive mode
+    visited = np.zeros(n, dtype=bool)  # visited nodes
     while unfeasible:
         model.optimize()
-        visited = np.zeros(n, dtype=bool)  # visited nodes
         tours = []  # list of subtours
+        visited.fill(False)
         # find subtours
         for start in range(n):
             if visited[start]:
@@ -124,8 +125,8 @@ def tsp_adhoc_subtours(c: np.array, plot=False, points=None, delay=0) -> tuple:
                 tours.append(tour)
         if unfeasible:
             print("Subtours found: ", tours)
+            model.freeTransform() # free transformation for adding constraints
             # add subtour elimination constraints
-            model.freeTransform()
             for tour in tours:
                 model.addCons(qsum(x[i, j] for i in range(n) for j in range(n) if i != j and (i in tour) and (j in tour)) <= len(tour) - 1)
             if plot:
