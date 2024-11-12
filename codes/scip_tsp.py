@@ -78,7 +78,7 @@ def tsp_all_subtours(c: np.array) -> tuple:
     return min_cost, tour
 
 
-def tsp_adhoc_subtours(c: np.array, plot=False, points=None, delay=0) -> tuple:
+def tsp_adhoc_subtours(c: np.array, plot=False, points=None) -> tuple:
     '''
     solve TSP with ad-hoc subtours elimination constraints
     c: np.array - cost matrix
@@ -132,7 +132,7 @@ def tsp_adhoc_subtours(c: np.array, plot=False, points=None, delay=0) -> tuple:
             if plot:
                 # plot subtours
                 plot_tours(points, tours)
-                plt.pause(delay) # delay in seconds for plotting
+                
     if plot:
         plt.ioff()  # disable interactive mode
         plt.close() # close plot
@@ -183,6 +183,7 @@ def plot_tours(points: np.array, tours: list):
         tour = np.append(tour, tour[0])  # add first point to the end
         ax.plot(points[tour, 0], points[tour, 1], linestyle='-', linewidth=2)
     fig.canvas.draw_idle()  # update the plot without blocking
+    plt.pause(0.1) # pause for a while to see the plot
 plot_tours.fig_ax = plt.subplots() # create 'static' figure and axis for plot_tours function
 
 
@@ -202,10 +203,10 @@ def make_random_instance(n: int = 10) -> tuple:
 
 
 if __name__ == "__main__":
-    points, c = make_random_instance(100)
+    points, c = make_random_instance(70)
     # min_cost, tour = tsp_mtz(c)
     # min_cost, tour = tsp_all_subtours(c)
-    min_cost, tour = tsp_adhoc_subtours(c, plot=True, points=points, delay=0.1)
+    min_cost, tour = tsp_adhoc_subtours(c, plot=True, points=points)
     print("Min Cost:", min_cost)
 
     # plot tour
