@@ -391,7 +391,7 @@ $$
 \min & \sum_{(i,j) \in A} d_{ij} x_{ij} \\
 \text{s.a.} & \sum_{j \in I} x_{ij} = 1 \quad \forall i \in I \\
 & \sum_{i \in I} x_{ij} = 1 \quad \forall j \in I \\
-& \sum_{(i,j) \in S}^{i\neq j} x_{ij} \leq \sharp(S)-1 \quad \forall S \subsetneq I, S \neq \emptyset \\
+& \sum_{(i,j) \in S}^{i\neq j} x_{ij} \leq \sharp(S)-1 \quad \forall S \subset I, 2 \leq \sharp(S) \leq \lfloor n/2 \rfloor \\
 & x_{ij} \in \{0,1\} \quad \forall (i,j) \in A
 \end{align*}
 $$
@@ -405,12 +405,13 @@ Uma variação da restrição de *subtour elimination*:
 
 $$
 \begin{align*}
-& \sum_{i \in S}\sum_{j \notin S} x_{ij} \geq 1 \quad \forall S \subsetneq I, S \neq \emptyset \\
+& \sum_{i \in S}\sum_{j \notin S} x_{ij} \geq 1 \quad \forall S \subset I, 2 \leq \sharp(S) \leq \lfloor n/2 \rfloor \\
 \end{align*}
 $$
 
-- **Dica:** $S$ pode ser limitado por $\sharp(S) \leq \lfloor n/2 \rfloor$ para reduzir o número de restrições pela metade. Pois só pode haver subtours maiores que $n/2$ cidades se houver subtours menores que $n/2$ cidades.
-- Isso **não reduz a complexidade** do modelo, mas pode torná-lo mais eficiente um pouco.
+- $S$ pode ser limitado por $\sharp(S) \leq \lfloor n/2 \rfloor$ para reduzir o número de restrições pela metade. Pois só pode haver subtours maiores que $n/2$ cidades se houver subtours menores que $n/2$ cidades.
+- Isso **não reduz a complexidade** do modelo, mas pode torná-lo mais eficiente **um pouco**.
+- Se adicionarmos todas as restrições, podemos **relaxar a restrição de integralidade** e resolver o problema como um problema de programação linear. Pois as restrições de *subtour elimination* garantem que a solução seja um ciclo Hamiltoniano.
  
 
 ---
