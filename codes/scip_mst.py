@@ -56,7 +56,7 @@ def mst_adhoc_circle(c: np.array) -> tuple:
     '''
     n = c.shape[0]
     model = Model("mst")
-    x = {(i, j): model.addVar(vtype="C", lb=0,ub=1) for j in range(1,n) for i in range(j)}
+    x = {(i, j): model.addVar(vtype="B") for j in range(1,n) for i in range(j)}
     # add objective function
     model.setObjective(qsum(c[i, j]*x[i, j] for i,j in x.keys()), "minimize")
     # add constraints
@@ -137,6 +137,5 @@ if __name__ == "__main__":
     points, c = make_random_instance(50)
     # min_cost, arcs = mst_all_circles(c)
     min_cost, arcs = mst_adhoc_circle(c)
-    # TODO está errado, corrigir
     print("Minimum cost: ", min_cost)
     plot_mst_sol(points, arcs)
