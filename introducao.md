@@ -301,14 +301,14 @@ def bpp(n:int,m:int,w:list,W:list)->tuple:
 - Para diminuir o número de soluções equivalentes, podemos adicionar **restrições de corte** ao modelo.
   - **Alternativa 1:** A soma dos pesos dos itens em um pacote deve ser **decrescente**.
     $$
-    \sum_{i \in I} w_i x_{ij} \leq \sum_{i \in I} w_i x_{ij'} \quad \forall j < j'
+    \sum_{i \in I} w_i x_{ij} \geq \sum_{i \in I} w_i x_{ij'} \quad \forall j < j'
     $$
-  - **Alternativa 2:** O item $i$ só pode ser colocado no pacote $j$ se $j\leq i$. (precisa $n = m$)
+  - **Alternativa 2:** O item $i$ só pode ser colocado no pacote $j$ se $i\leq j$.
     $$
     x_{ij} = 0 \quad \forall i \in I, j \in J, j > i
     $$
    
-> As duas alternativas não funcionam juntas, pois pode tornar o modelo inviável.
+> As duas alternativas **não funcionam juntas**, pois pode tornar o modelo **inviável**.
 ---
 
 ## Problema do Caixeiro Viajante <br>(*traveling salesman problem*)
@@ -416,14 +416,83 @@ $$
 
 ---
 
+### Modelo PLI Implementado em Python (SCIP)
+
+```python
+def tsp_all_subtours(c: np.array) -> tuple:
+    n = c.shape[0]
+    model = Model("tsp")
+    x = {(i, j): model.addVar(vtype="M", lb=0, ub=1) for i in range(n) for j in range(n) if i != j}
+    # add objective function
+    model.setObjective(qsum(c[i, j]*x[i, j] for i in range(n) for j in range(n) if i != j), "minimize")
+    # add degree constraints
+    for i in range(n):
+        model.addCons(qsum(x[i, j] for j in range(n) if i != j) == 1)
+        model.addCons(qsum(x[j, i] for j in range(n) if i != j) == 1)
+    # All possible subsets of nodes of size 2 to n//2 as Python generator
+    S = (s for k in range(2, n//2) for s in comb(range(n), k))
+    for s in S:
+        model.addCons(qsum(x[i, j] for i in s for j in s if i != j) <= len(s) - 1)
+    # optimize
+    model.optimize()
+    # extract solution
+    min_cost = model.getObjVal()
+    nxt = next(i for i in range(1, n) if model.getVal(x[0, i]) > 0.5)
+    while nxt != 0:
+        tour.append(nxt)
+        nxt = next(i for i in range(n) if tour[-1] != i and model.getVal(x[tour[-1], i]) > 0.5)
+    return min_cost, tour
+```
+
+---
+
  * Na prática, **relaxamos** a restrição de *subtour elimination* e resolvemos o problema iterativamente,
- * A cada iteração, identificamos um *subtour* e **adicionamos** uma restrição para eliminá-lo,
- * O processo é repetido até que não existam mais subtours.
+ * A cada iteração, identificamos *subtours* e adicionamos restrições para eliminá-los.
  * As restrições relaxadas são chamadas de ***lazy constraints***.
  * Não confundir com *cutting planes*, que são restrições adicionadas ao modelo para melhorar a convergência.
    * ***Lazy constraints*** são necessárias para garantir a **correção** do modelo (sem elas, o modelo pode retornar soluções inválidas),
-   * ***Cutting planes*** são utilizadas para **melhorar a eficiência** do modelo.
+   * ***Cutting planes*** são utilizadas para **melhorar a eficiência** do modelo durante o processo de *branch-and-bound*.
  
+---
+
+### Modelo Iterativo
+
+```python
+def tsp_adhoc_subtours(c: np.array) -> tuple:
+    n = c.shape[0]
+    model = Model("tsp")
+    x = {(i, j): model.addVar(vtype="B") for i in range(n) for j in range(n) if i != j}
+    model.setObjective(qsum(c[i, j]*x[i, j] for i in range(n) for j in range(n) if i != j), "minimize")
+    for i in range(n):
+        model.addCons(qsum(x[i, j] for j in range(n) if i != j) == 1)
+        model.addCons(qsum(x[j, i] for j in range(n) if i != j) == 1)
+    # optimize iteratively
+    unfeasible = True # flag for unfeasible solution
+    visited = np.zeros(n, dtype=bool)  # visited nodes
+    while unfeasible:
+        model.optimize() # solve the model
+        tours = []  # list of subtours found
+        visited.fill(False) # reset visited nodes
+        for start in range(n): # find subtours
+            if visited[start]: continue # skip visited nodes as start
+            tour = [start]
+            nxt = next(i for i in range(n) if start != i and model.getVal(x[start, i]) > 0.5)
+            while nxt != start:
+                tour.append(nxt)
+                visited[nxt] = True
+                nxt = next(i for i in range(n) if tour[-1] != i and model.getVal(x[tour[-1], i]) > 0.5)
+            if len(tour) == n: # feasible solution found
+                unfeasible = False
+                break
+            elif len(tour) <= n//2:  # ignore subtours with more than n//2 nodes
+                tours.append(tour)
+        if unfeasible:
+            model.freeTransform()  # free transformation for adding constraints
+            for tour in tours: # add subtour elimination constraints
+                model.addCons(qsum(x[i, j] for i in tour for j in tour if i != j) <= len(tour) - 1)
+    min_cost = model.getObjVal()
+    return min_cost, tour
+```
 
 ---
 

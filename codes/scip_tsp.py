@@ -65,11 +65,10 @@ def tsp_all_subtours(c: np.array) -> tuple:
     model.optimize()
     min_cost = model.getObjVal()
     tour = [0]
-    while True:
-        nxt = next(i for i in range(n) if tour[-1] != i and model.getVal(x[tour[-1], i]) > 0.5)
-        if nxt == 0:
-            break
+    nxt = next(i for i in range(1, n) if model.getVal(x[0, i]) > 0.5)
+    while nxt != 0:
         tour.append(nxt)
+        nxt = next(i for i in range(n) if tour[-1] != i and model.getVal(x[tour[-1], i]) > 0.5)
 
     # print running time
     print("Running time: ", model.getSolvingTime())
@@ -121,21 +120,20 @@ def tsp_adhoc_subtours(c: np.array, plot=False, points=None) -> tuple:
             if len(tour) == n:
                 unfeasible = False
                 break
-            if len(tour) <= n//2:  # ignore subtours with more than n//2 nodes
+            elif len(tour) <= n//2:  # ignore subtours with more than n//2 nodes
                 tours.append(tour)
         if unfeasible:
             print("Subtours found: ", tours)
-            model.freeTransform() # free transformation for adding constraints
+            model.freeTransform()  # free transformation for adding constraints
             # add subtour elimination constraints
             for tour in tours:
-                model.addCons(qsum(x[i, j] for i in range(n) for j in range(n) if i != j and (i in tour) and (j in tour)) <= len(tour) - 1)
+                model.addCons(qsum(x[i, j] for i in tour for j in tour if i != j) <= len(tour) - 1) 
             if plot:
-                # plot subtours
                 plot_tours(points, tours)
-                
+    # end while
     if plot:
         plt.ioff()  # disable interactive mode
-        plt.close() # close plot
+        plt.close()  # close plot
     end_time = time.time()  # end timing
     min_cost = model.getObjVal()
     # print running time
@@ -154,7 +152,7 @@ def plot_tour(points: np.array, tour: np.array):
     # add first point to the end
     tour = np.append(tour, tour[0])
     # clear plot if exists
-    plt.close()    
+    plt.close()
     # create axis
     fig, ax = plt.subplots()
     # plot tour
@@ -183,8 +181,10 @@ def plot_tours(points: np.array, tours: list):
         tour = np.append(tour, tour[0])  # add first point to the end
         ax.plot(points[tour, 0], points[tour, 1], linestyle='-', linewidth=2)
     fig.canvas.draw_idle()  # update the plot without blocking
-    plt.pause(0.1) # pause for a while to see the plot
-plot_tours.fig_ax = plt.subplots() # create 'static' figure and axis for plot_tours function
+    plt.pause(0.1)  # pause for a while to see the plot
+
+
+plot_tours.fig_ax = plt.subplots()  # create 'static' figure and axis for plot_tours function
 
 
 def make_random_instance(n: int = 10) -> tuple:
