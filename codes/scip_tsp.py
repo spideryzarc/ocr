@@ -1,5 +1,5 @@
 import time
-from pyscipopt import Model, SCIP_EVENTTYPE, SCIP_RESULT, Conshdlr, SCIP_PRESOLTIMING, SCIP_PROPTIMING
+from pyscipopt import Model
 from pyscipopt import quicksum as qsum
 import numpy as np
 import matplotlib.pyplot as plt
@@ -120,6 +120,7 @@ def tsp_adhoc_subtours(c: np.array, plot=False, points=None) -> tuple:
             if len(tour) == n:
                 unfeasible = False
                 break
+            # else:
             elif len(tour) <= n//2:  # ignore subtours with more than n//2 nodes
                 tours.append(tour)
         if unfeasible:

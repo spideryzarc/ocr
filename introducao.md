@@ -511,7 +511,7 @@ Dado um **grafo conexo** e **ponderado**, o problema da árvore geradora mínima
 
 - **Conjuntos:** 
   - $I=\{1,2,...,n\}$ de vértices,
-  - $A=\{(i,j): i,j \in I\}$ de arestas.
+  - $A=\{(i,j): i,j \in I, i < j\}$ de arestas.
 - **Parâmetros:** $c_{ij}$ (custo da aresta $(i,j)$).
 - **Variáveis de Decisão:** $x_{ij} \in \{0,1\}$, onde $x_{ij} = 1$ se a aresta $(i,j)$ é selecionada.
 
@@ -523,7 +523,7 @@ $$
 \begin{align*}
 \min & \sum_{(i,j) \in A} c_{ij} x_{ij} \\
 \text{s.a.} & \sum_{(i,j) \in A} x_{ij} = n-1 \\
-& \sum_{(i,j) \in S} x_{ij} \leq \sharp(S)-1 \quad \forall S \subset I, S \neq \emptyset \\
+& \sum_{(i,j) \in S}^{i<j} x_{ij} \leq \sharp(S)-1 \quad \forall S \subset I, S \neq \emptyset \\
 & x_{ij} \in \{0,1\} \quad \forall (i,j) \in A
 \end{align*}
 $$
