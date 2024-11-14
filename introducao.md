@@ -523,10 +523,39 @@ $$
 \begin{align*}
 \min & \sum_{(i,j) \in A} c_{ij} x_{ij} \\
 \text{s.a.} & \sum_{(i,j) \in A} x_{ij} = n-1 \\
-& \sum_{(i,j) \in S}^{i<j} x_{ij} \leq \sharp(S)-1 \quad \forall S \subset I, S \neq \emptyset \\
+& \sum_{(i,j) \in S}^{i<j} x_{ij} \leq \sharp(S)-1 \quad \forall S \subset I, ~ 2 \leq \sharp(S) \leq n-1 \\
 & x_{ij} \in \{0,1\} \quad \forall (i,j) \in A
 \end{align*}
 $$
+
+> Onde $S$ é um subconjunto de vértices, e $\sharp(S)$ é o número de elementos em $S$.
+> $x_{ij}$ pode ser relaxado para $x_{ij} \in [0,1]$.
+
+---
+
+### Modelo PLI Implementado em Python (SCIP)
+
+```python
+def mst_all_circles(c: np.array) -> tuple:
+    n = c.shape[0]
+    model = Model("mst")
+    x = {(i, j): model.addVar(vtype="C", lb=0,ub=1) for j in range(1,n) for i in range(j)}
+    # add objective function
+    model.setObjective(qsum(c[i, j]*x[i, j] for i,j in x.keys()), "minimize")
+    # add constraints
+    model.addCons(qsum(x[i,j] for i,j in x.keys()) == n-1)
+    # All possible subsets of nodes of size 2 to n-1 as Python generator
+    S = (s for k in range(2, n) for s in comb(range(n), k))
+    for s in S:
+        model.addCons(qsum(x[i, j] for i in s for j in s if i < j) <= len(s)-1)
+    # optimize
+    model.optimize()
+    min_cost = model.getObjVal()
+    arcs = [(i, j) for i,j in x.keys() if model.getVal(x[i, j]) > 0.5]
+    # print running time
+    print("Running time: ", model.getSolvingTime())
+    return min_cost, arcs
+```
 
 ---
 
@@ -536,12 +565,80 @@ $$
 & \sum_{(i,j) \in \delta(S)} x_{ij} \geq 1 \quad \forall S \subsetneq I, S \neq \emptyset \\
 \end{align*}
 $$
+Onde $\delta(S)$ é o conjunto de arestas que conectam o subconjunto $S$ ao restante do grafo.
 
-> Onde $\delta(S)$ é o conjunto de arestas que conectam o subconjunto $S$ ao restante do grafo.
+- A restrição de *subtour elimination* é **exponencial**, o que torna o modelo impraticável para **instâncias** grandes.
+- Também podemos usar a abordagem **iterativa** para resolver o problema, adicionando restrições de *subtour elimination* conforme necessário.	
+- Para resolver o problema de **forma eficiente**, utilizamos algoritmos como **Prim** e **Kruskal** que veremos mais adiante.
 
-> A restrição de *subtour elimination* é **exponencial**, o que torna o modelo impraticável para **instâncias** grandes.
+---
 
->Para resolver o problema de forma eficiente, utilizamos algoritmos como **Prim** e **Kruskal** que veremos mais adiante.
+### Modelo Iterativo
+
+```python
+def mst_adhoc_circle(c: np.array, min_degree_const=True) -> tuple:
+    n = c.shape[0]
+    model = Model("mst")
+    x = {(i, j): model.addVar(vtype="B") for j in range(1, n) for i in range(j)}
+    model.setObjective(qsum(c[i, j]*x[i, j] for i, j in x.keys()), "minimize")    
+    model.addCons(qsum(x.values()) == n-1) # number of arcs constraint
+    # add minimum degree constraint (speed up)
+    if min_degree_const:
+        for k in range(n):
+            model.addCons(qsum(x[i, j] for i, j in x.keys() if j == k or i == k) >= 1)    
+    # optimize iteratively
+    adj = np.zeros((n, n), dtype=bool)
+    while True:
+        model.optimize()
+        # extract adjacency matrix
+        adj.fill(False)
+        for i, j in x.keys(): 
+            if model.getVal(x[i, j]) > 0.5:
+                adj[i, j], adj[j, i] = True, True        
+        circle = find_circle(adj) # find a circle using DFS
+        if not circle: # no circle found
+            break
+        # add subtour elimination constraint
+        model.freeTransform()
+        model.addCons(qsum(x[i, j] for i in circle for j in circle if i < j) <= len(circle)-1)
+    # end while
+    min_cost = model.getObjVal()
+    arcs = [(i, j) for i, j in x.keys() if model.getVal(x[i, j]) > 0.5]    
+    return min_cost, arcs
+```
+---
+
+#### Função para Encontrar um Ciclo
+
+```python
+def find_circle(adj: np.array) -> list:
+    n = len(adj)
+    visited = np.zeros(n, dtype=bool) # visited nodes
+    parent = np.full(n, -1, dtype=np.int16) # parent nodes in the DFS
+    def dfs(u): # depth-first search
+        visited[u] = True
+        for v in range(n):
+            if adj[u][v]:
+                if not visited[v]:
+                    parent[v] = u
+                    cycle = dfs(v) # recursive call
+                    if cycle: return cycle
+                elif v != parent[u]:
+                    # Found a cycle, reconstruct the path
+                    cycle = [v, u]
+                    curr = u
+                    while parent[curr] != -1 and parent[curr] != v:
+                        curr = parent[curr]
+                        cycle.append(curr)
+                    return cycle
+        return None # backtrack
+    # for each not visited node start a DFS
+    for u in range(n):
+        if not visited[u]:
+            cycle = dfs(u)
+            if cycle: return cycle
+    return None
+```
 
 ---
 
@@ -580,11 +677,13 @@ $$
 \end{align*}
 $$
 
+
+
 ---
 
 ## Fluxo Máximo <br> (*maximum flow*)
 
-Dado um **grafo** com **capacidades** nas arestas e dois vértices especiais, o problema do fluxo máximo consiste em encontrar o **fluxo máximo** que pode ser enviado do vértice de **origem** ao vértice de **destino**.
+Dado um **grafo** com **capacidades** nas arestas e dois vértices especiais, o problema do fluxo máximo consiste em encontrar o **fluxo máximo** que pode ser enviado do vértice de **origem** ao vértice de **destino**, determinando a quantidade de fluxo que passa por cada aresta.
 
 
 ![bg right:30% fit drop-shadow 95%](images/max_flow.png)
