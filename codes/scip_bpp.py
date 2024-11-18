@@ -12,8 +12,17 @@ def bpp(n: int, m: int, w: np.array, C: int) -> tuple:
     return: tuple - (min_bins, bin_assignment)
     '''
     model = Model("bpp")
-    x = {(i, j): model.addVar(vtype="B") for i in range(n) for j in range(m)}
-    y = [model.addVar(vtype="B") for j in range(m)]
+    #x = {(i, j): model.addVar(vtype="B") for i in range(n) for j in range(m)}
+    x = {}
+    for i in range(n):
+        for j in range(m):
+            x[i, j] = model.addVar(vtype="B")
+    
+    #y = [model.addVar(vtype="B") for j in range(m)]
+    y = []
+    for j in range(m):
+        y.append(model.addVar(vtype="B"))
+        
     # add objective function
     model.setObjective(qsum(y), "minimize")
     # add constraints
@@ -26,7 +35,15 @@ def bpp(n: int, m: int, w: np.array, C: int) -> tuple:
     # optimize
     model.optimize()
     min_bins = model.getObjVal()
-    bin_assignment = np.array([next(j for j in range(m) if model.getVal(x[i, j]) > 0.5) for i in range(n)])
+    # compact implementation
+    # bin_assignment = np.array([next(j for j in range(m) if model.getVal(x[i, j]) > 0.5) for i in range(n)])
+    # verbose implementation
+    bin_assignment = []
+    for i in range(n):
+        for j in range(m):
+            if model.getVal(x[i, j]) > 0.5:
+                bin_assignment.append(j)
+                break
     return min_bins, bin_assignment
 
 

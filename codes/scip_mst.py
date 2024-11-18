@@ -79,7 +79,7 @@ def mst_adhoc_circle(c: np.array, min_degree_const=True) -> tuple:
         adj.fill(False)
         for i, j in x.keys():
             if model.getVal(x[i, j]) > 0.5:
-                adj[i, j], adj[j, i] = True, True
+                adj[i, j] = adj[j, i] =  True
         # find a circle using DFS
         circle = find_circle(adj)
         if not circle:

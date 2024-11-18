@@ -14,7 +14,7 @@ def make_random_instance(n: int = 10, min_degree: int = 2, max_degree: int = 5) 
     '''
     points = np.random.rand(n, 2)  # random points
     edges = {}
-    c = np.zeros(n)  # cost matrix
+    c = np.zeros(n)  # cost vector
     for i in range(n):
         for j in range(n):
             c[j] = np.linalg.norm(points[i]-points[j])
@@ -39,29 +39,71 @@ def plot_path(points, edges, path=None, show_dist=False):
     for i in edges.keys():
         for j in edges[i].keys():
             plt.arrow(points[i, 0], points[i, 1], points[j, 0] - points[i, 0], points[j, 1] - points[i, 1],
-                      head_width=0.01, length_includes_head=True, color='gray')
+                      head_width=0.01, length_includes_head=True, color='gray', alpha=0.5)
             # plt.text((points[i, 0] + points[j, 0]) / 2, (points[i, 1] + points[j, 1]) / 2, f'{edges[i][j]:.2f}', color='blue')
 
     if path is not None:
         for i in range(len(path)-1):
-            plt.arrow(points[path[i], 0], points[path[i+1], 0] - points[path[i], 0], points[path[i+1], 1] - points[path[i], 1],
-                      head_width=0.02, length_includes_head=True, color='red')
-            plt.text((points[path[i], 0] + points[path[i+1], 0]) / 2, (points[path[i], 1] + points[path[i+1], 1]) / 2,
-                     f'{edges[path[i]][path[i+1]]:.2f}', color='blue')
-        plt.arrow(points[path[-1], 0], points[path[0], 0] - points[path[-1], 0], points[path[0], 1] - points[path[-1], 1],
-                  head_width=0.02, length_includes_head=True, color='red')
-        if show_dist:
-            plt.text((points[path[-1], 0] + points[path[0], 0]) / 2, (points[path[-1], 1] + points[path[0], 1]) / 2,
-                     f'{edges[path[-1]][path[0]]:.2f}', color='blue')
+            plt.arrow(points[path[i], 0], points[path[i], 1], points[path[i+1], 0] - points[path[i], 0],
+                        points[path[i+1], 1] - points[path[i], 1], head_width=0.02, length_includes_head=True, color='blue', width=0.01)
+            
+            # plt.text((points[path[i], 0] + points[path[i+1], 0]) / 2, (points[path[i], 1] + points[path[i+1], 1]) / 2,
+            #          f'{edges[path[i]][path[i+1]]:.2f}', color='blue')
+        # if show_dist:
+        #     plt.text((points[path[-1], 0] + points[path[0], 0]) / 2, (points[path[-1], 1] + points[path[0], 1]) / 2,
+        #              f'{edges[path[-1]][path[0]]:.2f}', color='blue')
 
     plt.scatter(points[:, 0], points[:, 1])
     plt.show()
 
+def shortest_path(edges:dict, s: int, t: int) -> tuple:
+    '''
+    edges: dict - edge[i][j] = cost
+    s: int - source node
+    t: int - target node
+    return: tuple - (min_cost, path) 
+    '''
+    n = len(edges)
+    model = Model("shortest_path")
+    x = {(i, j): model.addVar(vtype="C", lb=0,ub=1) for i in edges.keys() for j in edges[i].keys()}
+    # add objective function
+    model.setObjective(qsum(edges[i][j]*x[i, j] for i,j in x.keys()), "minimize")
+    # add constraints
+    for k in edges.keys():
+        if k == s :
+            model.addCons(
+                qsum(x[i, j] for i, j in x.keys() if i == k) 
+                - qsum(x[i, j] for i, j in x.keys() if j == k) == 1)
+        elif k == t:
+            model.addCons(
+                qsum(x[i, j] for i, j in x.keys() if i == k) 
+                - qsum(x[i, j] for i, j in x.keys() if j == k) == -1)
+        else:
+            model.addCons(
+                qsum(x[i, j] for i, j in x.keys() if i == k) 
+                - qsum(x[i, j] for i, j in x.keys() if j == k) == 0)
+            # remove verbose
+    model.hideOutput()
+    # optimize
+    model.optimize()
+    print("Running time:", model.getSolvingTime())
+    if model.getStatus() == "infeasible":
+        return np.inf, []
+    min_cost = model.getObjVal()
+    path = [s]
+    while path[-1] != t:
+        for j in edges[path[-1]].keys():
+            if j != path[-1] and model.getVal(x[path[-1], j]) > 0.5:
+                path.append(j)
+                break
+    return min_cost, path
 
 if __name__ == "__main__":
-    points, edges = make_random_instance(n=10, min_degree=2, max_degree=3)
+    points, edges = make_random_instance(n=1000, min_degree=4, max_degree=6)
 
-    plot_path(points, edges)
-
-    print("Points:", points)
-    print("Edges:", edges)
+    
+    min_cost, path = shortest_path(edges, 0, 99)
+    
+    plot_path(points, edges, path, show_dist=True)
+    print("Min cost:", min_cost)
+    print("Path:", path)
