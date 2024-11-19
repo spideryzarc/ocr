@@ -670,14 +670,41 @@ $$
 \begin{align*}
 \min & \sum_{(i,j) \in A} c_{ij} x_{ij} \\
 \text{s.a.} & \\
-& \sum_{j \in I}^{j\neq i} x_{ij} = \sum_{j \in I}^{j\neq i} x_{ji} \quad \forall i \in I / \{s,t\} \\
-& \sum_{j \in I} x_{sj} = 1 \\
-& \sum_{i \in I} x_{it} = 1 \\
+& \sum_{j \in I}^{j\neq k} x_{kj} - \sum_{i \in I}^{i\neq k}x_{ik} =  \begin{cases} 1 & \text{se } k = s \\ -1 & \text{se } k = t \\ 0 & \text{caso contrário} \end{cases} \quad \forall k \in I \\
 & x_{ij} \in \{0,1\} \quad \forall (i,j) \in A
 \end{align*}
 $$
 
+---
 
+### Modelo PLI Implementado em Python (SCIP)
+
+```python
+def shortest_path(n: int, edges: dict, s: int, t: int) -> tuple:
+    model = Model("shortest_path")
+    x = {(i, j): model.addVar(vtype="C", lb=0, ub=1) for i, j in edges.keys()}
+    # add objective function
+    model.setObjective(qsum(edges[i, j]*x[i, j] for i, j in x.keys()), "minimize")
+    # add constraints
+    for k in range(n):
+        if k == s:
+            model.addCons(qsum(x[i, j] for i, j in x.keys() if i == k)
+                - qsum(x[i, j] for i, j in x.keys() if j == k) == 1)
+        elif k == t:
+            model.addCons(qsum(x[i, j] for i, j in x.keys() if i == k)
+                - qsum(x[i, j] for i, j in x.keys() if j == k) == -1)
+        else:
+            model.addCons(qsum(x[i, j] for i, j in x.keys() if i == k)
+                - qsum(x[i, j] for i, j in x.keys() if j == k) == 0)           
+    # optimize
+    model.optimize()
+    if model.getStatus() == "infeasible": return np.inf, []
+    min_cost = model.getObjVal()
+    path = [s]
+    while path[-1] != t:
+        path.append(next(j for i, j in x.keys() if i == path[-1] and model.getVal(x[i, j]) > 0.5))
+    return min_cost, path
+```
 
 ---
 

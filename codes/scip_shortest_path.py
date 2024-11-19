@@ -3,6 +3,7 @@ from pyscipopt import quicksum as qsum
 import numpy as np
 import random
 import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
 
 
 def make_random_instance(n: int = 10, min_degree: int = 2, max_degree: int = 5) -> tuple:
@@ -10,77 +11,82 @@ def make_random_instance(n: int = 10, min_degree: int = 2, max_degree: int = 5) 
     n: int - number of nodes
     min_degree: int - minimum degree of each node
     max_degree: int - maximum degree of each node
-    return: tuple - (points, edges) where points is a np.array of shape (n, 2) and edges is a dict of dict edge[i][j] = cost
+    return: tuple - (points, edges) where points is a np.array of shape (n, 2) and edges is a dict of dict edge[i,j] = cost
     '''
     points = np.random.rand(n, 2)  # random points
     edges = {}
-    c = np.zeros(n)  # cost vector
+    # Precompute the distance matrix (copilot  does it, don't you ask me how it does it)
+    D = np.linalg.norm(points[:, np.newaxis, :] - points[np.newaxis, :, :], axis=2)
+    np.fill_diagonal(D, np.inf)
     for i in range(n):
-        for j in range(n):
-            c[j] = np.linalg.norm(points[i]-points[j])
-        c[i] = np.inf
-        edges[i] = {}
-        n_neighbors = random.randint(min_degree, max_degree+1)
-        # select n_neighbors from max_degree closest nodes
-        neighbors = np.argsort(c)[:max_degree]
+        n_neighbors = random.randint(min_degree, max_degree)
+        # Select neighbors based on precomputed distances
+        neighbors = np.argsort(D[i])[:max_degree]
         if len(neighbors) > n_neighbors:
             neighbors = np.random.choice(neighbors, n_neighbors, replace=False)
         for j in neighbors:
-            edges[i][j] = c[j]
+            edges[i, j] = D[i, j]
     return points, edges
 
 
-def plot_path(points, edges, path=None, show_dist=False):
+def plot_path(points, path=None):
     '''
     points: np.array - list of points in the plane
     edges: dict - edge[i][j] = cost
     path: list - list of points indices
     '''
-    for i in edges.keys():
-        for j in edges[i].keys():
-            plt.arrow(points[i, 0], points[i, 1], points[j, 0] - points[i, 0], points[j, 1] - points[i, 1],
-                      head_width=0.01, length_includes_head=True, color='gray', alpha=0.5)
-            # plt.text((points[i, 0] + points[j, 0]) / 2, (points[i, 1] + points[j, 1]) / 2, f'{edges[i][j]:.2f}', color='blue')
+    fig, ax = plt.subplots()
+    for i, j in edges.keys():
+        arrow = mpatches.FancyArrow(points[i, 0], points[i, 1],
+                                    points[j, 0] - points[i, 0],
+                                    points[j, 1] - points[i, 1],
+                                    width=0.001, length_includes_head=True,
+                                    color='#cfb6b6')
+        ax.add_patch(arrow)
+        # plt.text((points[i, 0] + points[j, 0]) / 2, (points[i, 1] + points[j, 1]) / 2, f'{edges[i][j]:.2f}', color='blue')
+
+    plt.scatter(points[1:-1, 0], points[1:-1, 1], color='black')
+    # Highlight source and target points
+    plt.scatter(points[path[0], 0], points[path[0], 1], color='#4c9242', s=50, label='Source')
+    plt.scatter(points[path[-1], 0], points[path[-1], 1], color='#c94b4b', s=50, label='Target')
 
     if path is not None:
         for i in range(len(path)-1):
-            plt.arrow(points[path[i], 0], points[path[i], 1], points[path[i+1], 0] - points[path[i], 0],
-                        points[path[i+1], 1] - points[path[i], 1], head_width=0.02, length_includes_head=True, color='blue', width=0.01)
-            
-            # plt.text((points[path[i], 0] + points[path[i+1], 0]) / 2, (points[path[i], 1] + points[path[i+1], 1]) / 2,
-            #          f'{edges[path[i]][path[i+1]]:.2f}', color='blue')
-        # if show_dist:
-        #     plt.text((points[path[-1], 0] + points[path[0], 0]) / 2, (points[path[-1], 1] + points[path[0], 1]) / 2,
-        #              f'{edges[path[-1]][path[0]]:.2f}', color='blue')
-
-    plt.scatter(points[:, 0], points[:, 1])
+            arrow = mpatches.FancyArrow(points[path[i], 0], points[path[i], 1],
+                                        points[path[i+1], 0] - points[path[i], 0],
+                                        points[path[i+1], 1] - points[path[i], 1],
+                                        width=0.005, length_includes_head=True,
+                                        color='#42adc0')
+            ax.add_patch(arrow)
+    ax.set_aspect('equal', adjustable='box')
     plt.show()
 
-def shortest_path(edges:dict, s: int, t: int) -> tuple:
+
+def shortest_path(n: int, edges: dict, s: int, t: int) -> tuple:
     '''
+    n: int - number of nodes
     edges: dict - edge[i][j] = cost
     s: int - source node
     t: int - target node
-    return: tuple - (min_cost, path) 
+    return: tuple - (min_cost, path)
     '''
-    n = len(edges)
     model = Model("shortest_path")
-    x = {(i, j): model.addVar(vtype="C", lb=0,ub=1) for i in edges.keys() for j in edges[i].keys()}
+    x = {(i, j): model.addVar(vtype="C", lb=0, ub=1) for i, j in edges.keys()}
     # add objective function
-    model.setObjective(qsum(edges[i][j]*x[i, j] for i,j in x.keys()), "minimize")
+    model.setObjective(qsum(edges[i, j]*x[i, j] for i, j in x.keys()), "minimize")
     # add constraints
-    for k in edges.keys():
-        if k == s :
+    for k in range(n):
+        if k == s:
             model.addCons(
-                qsum(x[i, j] for i, j in x.keys() if i == k) 
+                qsum(x[i, j] for i, j in x.keys() if i == k)
                 - qsum(x[i, j] for i, j in x.keys() if j == k) == 1)
         elif k == t:
             model.addCons(
-                qsum(x[i, j] for i, j in x.keys() if i == k) 
+                qsum(x[i, j] for i, j in x.keys() if i == k)
                 - qsum(x[i, j] for i, j in x.keys() if j == k) == -1)
         else:
             model.addCons(
-                qsum(x[i, j] for i, j in x.keys() if i == k) 
+                qsum(x[i, j] for i, j in x.keys() if i == k)
                 - qsum(x[i, j] for i, j in x.keys() if j == k) == 0)
             # remove verbose
     model.hideOutput()
@@ -92,18 +98,21 @@ def shortest_path(edges:dict, s: int, t: int) -> tuple:
     min_cost = model.getObjVal()
     path = [s]
     while path[-1] != t:
-        for j in edges[path[-1]].keys():
-            if j != path[-1] and model.getVal(x[path[-1], j]) > 0.5:
-                path.append(j)
-                break
+        path.append(next(j for i, j in x.keys() if i == path[-1] and model.getVal(x[i, j]) > 0.5))
     return min_cost, path
 
-if __name__ == "__main__":
-    points, edges = make_random_instance(n=1000, min_degree=4, max_degree=6)
 
-    
-    min_cost, path = shortest_path(edges, 0, 99)
-    
-    plot_path(points, edges, path, show_dist=True)
+if __name__ == "__main__":
+    # Generate random instance
+    n = 1000 
+    points, edges = make_random_instance(n=n, min_degree=4, max_degree=5)
+
+    # Choose source and target nodes as the ones with minimum and maximum sum of coordinates
+    s = min(range(n), key=lambda i: points[i,0]+points[i,1])
+    t = max(range(n), key=lambda i: points[i,0]+points[i,1])
+
+    min_cost, path = shortest_path(n, edges, s, t)
+
+    plot_path(points, path)
     print("Min cost:", min_cost)
     print("Path:", path)
