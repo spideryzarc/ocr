@@ -541,9 +541,9 @@ def mst_all_circles(c: np.array) -> tuple:
     model = Model("mst")
     x = {(i, j): model.addVar(vtype="C", lb=0,ub=1) for j in range(1,n) for i in range(j)}
     # add objective function
-    model.setObjective(qsum(c[i, j]*x[i, j] for i,j in x.keys()), "minimize")
+    model.setObjective(qsum(c[i, j]*x[i, j] for i,j in x), "minimize")
     # add constraints
-    model.addCons(qsum(x[i,j] for i,j in x.keys()) == n-1)
+    model.addCons(qsum(x[i,j] for i,j in x) == n-1)
     # All possible subsets of nodes of size 2 to n-1 as Python generator
     S = (s for k in range(2, n) for s in comb(range(n), k))
     for s in S:
@@ -551,7 +551,7 @@ def mst_all_circles(c: np.array) -> tuple:
     # optimize
     model.optimize()
     min_cost = model.getObjVal()
-    arcs = [(i, j) for i,j in x.keys() if model.getVal(x[i, j]) > 0.5]
+    arcs = [(i, j) for i,j in x if model.getVal(x[i, j]) > 0.5]
     # print running time
     print("Running time: ", model.getSolvingTime())
     return min_cost, arcs
@@ -580,21 +580,21 @@ def mst_adhoc_circle(c: np.array, min_degree_const=True) -> tuple:
     n = c.shape[0]
     model = Model("mst")
     x = {(i, j): model.addVar(vtype="B") for j in range(1, n) for i in range(j)}
-    model.setObjective(qsum(c[i, j]*x[i, j] for i, j in x.keys()), "minimize")    
+    model.setObjective(qsum(c[i, j]*x[i, j] for i, j in x), "minimize")    
     model.addCons(qsum(x.values()) == n-1) # number of arcs constraint
     # add minimum degree constraint (speed up)
     if min_degree_const:
         for k in range(n):
-            model.addCons(qsum(x[i, j] for i, j in x.keys() if j == k or i == k) >= 1)    
+            model.addCons(qsum(x[i, j] for i, j in x if j == k or i == k) >= 1)    
     # optimize iteratively
     adj = np.zeros((n, n), dtype=bool)
     while True:
         model.optimize()
         # extract adjacency matrix
         adj.fill(False)
-        for i, j in x.keys(): 
+        for i, j in x: 
             if model.getVal(x[i, j]) > 0.5:
-                adj[i, j], adj[j, i] = True, True        
+                adj[i, j] = adj[j, i] = True        
         circle = find_circle(adj) # find a circle using DFS
         if not circle: # no circle found
             break
@@ -603,7 +603,7 @@ def mst_adhoc_circle(c: np.array, min_degree_const=True) -> tuple:
         model.addCons(qsum(x[i, j] for i in circle for j in circle if i < j) <= len(circle)-1)
     # end while
     min_cost = model.getObjVal()
-    arcs = [(i, j) for i, j in x.keys() if model.getVal(x[i, j]) > 0.5]    
+    arcs = [(i, j) for i, j in x if model.getVal(x[i, j]) > 0.5]    
     return min_cost, arcs
 ```
 ---
@@ -682,27 +682,28 @@ $$
 ```python
 def shortest_path(n: int, edges: dict, s: int, t: int) -> tuple:
     model = Model("shortest_path")
-    x = {(i, j): model.addVar(vtype="C", lb=0, ub=1) for i, j in edges.keys()}
+    x = {(i, j): model.addVar(vtype="C", lb=0, ub=1) for i, j in edges}
     # add objective function
-    model.setObjective(qsum(edges[i, j]*x[i, j] for i, j in x.keys()), "minimize")
+    model.setObjective(qsum(edges[i, j]*x[i, j] for i, j in edges), "minimize")
     # add constraints
     for k in range(n):
-        if k == s:
-            model.addCons(qsum(x[i, j] for i, j in x.keys() if i == k)
-                - qsum(x[i, j] for i, j in x.keys() if j == k) == 1)
-        elif k == t:
-            model.addCons(qsum(x[i, j] for i, j in x.keys() if i == k)
-                - qsum(x[i, j] for i, j in x.keys() if j == k) == -1)
-        else:
-            model.addCons(qsum(x[i, j] for i, j in x.keys() if i == k)
-                - qsum(x[i, j] for i, j in x.keys() if j == k) == 0)           
+      if k == s:
+          model.addCons(qsum(x[k, j] for j in range(n) if (k, j) in edges)
+                        - qsum(x[i, k] for i in range(n) if (i, k) in edges) == 1)
+      elif k == t:
+          model.addCons(qsum(x[k, j] for j in range(n) if (k, j) in edges)
+                        - qsum(x[i, k] for i in range(n) if (i, k) in edges) == -1)
+      else:
+          model.addCons(qsum(x[k, j] for j in range(n) if (k, j) in edges)
+                        - qsum(x[i, k] for i in range(n) if (i, k) in edges) == 0)        
     # optimize
     model.optimize()
     if model.getStatus() == "infeasible": return np.inf, []
+    # extract solution
     min_cost = model.getObjVal()
     path = [s]
     while path[-1] != t:
-        path.append(next(j for i, j in x.keys() if i == path[-1] and model.getVal(x[i, j]) > 0.5))
+        path.append(next(j for i, j in edges if i == path[-1] and model.getVal(x[i, j]) > 0.5))
     return min_cost, path
 ```
 
@@ -737,12 +738,40 @@ $$
 \begin{align*}
 \max & \sum_{j \in I} x_{sj} \\
 \text{s.a.} & \\
-& \sum_{j \in I} x_{ij} - \sum_{j \in I} x_{ji} = 0 \quad \forall i \in I / \{s,t\} \\
-& \sum_{j \in I} x_{sj} = \sum_{j \in I} x_{jt} \\
+& \sum_{j \in I} x_{kj} - \sum_{j \in I} x_{jk} = 0 \quad \forall k \in I / \{s,t\} \\
+& \sum_{j \in I} x_{sj} = \sum_{i \in I} x_{it} \\
+& \sum_{i \in I} x_{is} = 0 \\
+& \sum_{j \in I} x_{tj} = 0 \\
 & 0 \leq x_{ij} \leq c_{ij} \quad \forall (i,j) \in A
 \end{align*}
 $$
 
+---
+
+### Modelo PLI Implementado em Python (SCIP)
+
+```python
+def max_flow(n: int, edges: dict, s: int, t: int) -> tuple:
+    model = Model("max_flow")
+    x = {(i, j): model.addVar(vtype="C", lb=0, ub=C)for (i, j), C in edges.items()}
+    # Objective: maximize total flow out of source
+    model.setObjective(qsum(x[s, j] for j in range(n) if (s, j) in x), "maximize")
+    # Constraints
+    for k in range(n):
+        if k == s or k == t:
+            continue
+        model.addCons(qsum(x[i, k] for i in range(n) if (i, k) in x) ==
+                      qsum(x[k, j] for j in range(n) if (k, j) in x))
+    model.addCons(qsum(x[i, s] for i in range(n) if (i, s) in x) == 0)
+    model.addCons(qsum(x[t, j] for j in range(n) if (t, j) in x) == 0)
+    model.addCons(qsum(x[i, t] for i in range(n) if (i, t) in x) ==
+                  qsum(x[s, j] for j in range(n) if (s, j) in x))
+    model.optimize()
+    if model.getStatus() != "optimal": return 0, {}
+    max_flow_value = model.getObjVal()
+    flow = {(i, j): model.getVal(x[i, j]) for i, j in x}
+    return max_flow_value, flow
+```
 
 ---
 

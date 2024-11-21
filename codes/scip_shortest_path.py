@@ -15,7 +15,7 @@ def make_random_instance(n: int = 10, min_degree: int = 2, max_degree: int = 5) 
     '''
     points = np.random.rand(n, 2)  # random points
     edges = {}
-    # Precompute the distance matrix (copilot  does it, don't you ask me how it does it)
+    # Precompute the distance matrix (copilot  made it, don't you ask me how it does it)
     D = np.linalg.norm(points[:, np.newaxis, :] - points[np.newaxis, :, :], axis=2)
     np.fill_diagonal(D, np.inf)
     for i in range(n):
@@ -71,23 +71,20 @@ def shortest_path(n: int, edges: dict, s: int, t: int) -> tuple:
     return: tuple - (min_cost, path)
     '''
     model = Model("shortest_path")
-    x = {(i, j): model.addVar(vtype="C", lb=0, ub=1) for i, j in edges.keys()}
+    x = {(i, j): model.addVar(vtype="C", lb=0, ub=1) for i, j in edges}
     # add objective function
-    model.setObjective(qsum(edges[i, j]*x[i, j] for i, j in x.keys()), "minimize")
+    model.setObjective(qsum(edges[i, j]*x[i, j] for i, j in edges), "minimize")
     # add constraints
     for k in range(n):
         if k == s:
-            model.addCons(
-                qsum(x[i, j] for i, j in x.keys() if i == k)
-                - qsum(x[i, j] for i, j in x.keys() if j == k) == 1)
+            model.addCons(qsum(x[k, j] for j in range(n) if (k, j) in edges)
+                          - qsum(x[i, k] for i in range(n) if (i, k) in edges) == 1)
         elif k == t:
-            model.addCons(
-                qsum(x[i, j] for i, j in x.keys() if i == k)
-                - qsum(x[i, j] for i, j in x.keys() if j == k) == -1)
+            model.addCons(qsum(x[k, j] for j in range(n) if (k, j) in edges)
+                          - qsum(x[i, k] for i in range(n) if (i, k) in edges) == -1)
         else:
-            model.addCons(
-                qsum(x[i, j] for i, j in x.keys() if i == k)
-                - qsum(x[i, j] for i, j in x.keys() if j == k) == 0)
+            model.addCons(qsum(x[k, j] for j in range(n) if (k, j) in edges)
+                          - qsum(x[i, k] for i in range(n) if (i, k) in edges) == 0)
             # remove verbose
     model.hideOutput()
     # optimize
@@ -98,18 +95,18 @@ def shortest_path(n: int, edges: dict, s: int, t: int) -> tuple:
     min_cost = model.getObjVal()
     path = [s]
     while path[-1] != t:
-        path.append(next(j for i, j in x.keys() if i == path[-1] and model.getVal(x[i, j]) > 0.5))
+        path.append(next(j for i, j in edges if i == path[-1] and model.getVal(x[i, j]) > 0.5))
     return min_cost, path
 
 
 if __name__ == "__main__":
     # Generate random instance
-    n = 1000 
+    n = 100
     points, edges = make_random_instance(n=n, min_degree=4, max_degree=5)
 
     # Choose source and target nodes as the ones with minimum and maximum sum of coordinates
-    s = min(range(n), key=lambda i: points[i,0]+points[i,1])
-    t = max(range(n), key=lambda i: points[i,0]+points[i,1])
+    s = min(range(n), key=lambda i: points[i, 0]+points[i, 1])
+    t = max(range(n), key=lambda i: points[i, 0]+points[i, 1])
 
     min_cost, path = shortest_path(n, edges, s, t)
 
