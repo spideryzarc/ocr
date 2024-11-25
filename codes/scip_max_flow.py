@@ -74,25 +74,22 @@ def max_flow(n: int, edges: dict, s: int, t: int) -> tuple:
     n: int - number of nodes
     edges: dict - edges with capacities edges[i, j]
     s: int - source node
-    t: int - sink node
+    t: int - target node
     return: tuple - (max_flow_value, flow_dict)
     '''
     model = Model("max_flow")
-    x = {(i, j): model.addVar(vtype="C", lb=0, ub=capacity)
-         for (i, j), capacity in edges.items()}
+    x = {(i, j): model.addVar(vtype="C", lb=0, ub=cap) 
+         for (i, j), cap in edges.items() 
+            if i != t and j != s}
     # Objective: maximize total flow out of source
-    model.setObjective(qsum(x[s, j] for j in range(n) if (s, j) in x), "maximize")
+    model.setObjective(qsum(x[s, j] for j in range(n) if (s, j) in x) +
+                       qsum(x[i, j]*-1e-6 for i,j in x), "maximize")
     # Flow conservation constraints
     for k in range(n):
-        if k == s or k == t:
-            continue
-        model.addCons(qsum(x[i, k] for i in range(n) if (i, k) in x) ==
+        if k not in (s, t):
+            model.addCons(qsum(x[i, k] for i in range(n) if (i, k) in x) ==
                       qsum(x[k, j] for j in range(n) if (k, j) in x))
-    model.addCons(qsum(x[i, s] for i in range(n) if (i, s) in x) == 0)
-    model.addCons(qsum(x[t, j] for j in range(n) if (t, j) in x) == 0)
-    model.addCons(qsum(x[i, t] for i in range(n) if (i, t) in x) ==
-                  qsum(x[s, j] for j in range(n) if (s, j) in x))
-
+    
     # Solve the model
     model.hideOutput()
     model.optimize()
@@ -105,7 +102,7 @@ def max_flow(n: int, edges: dict, s: int, t: int) -> tuple:
 
 if __name__ == "__main__":
     # Generate random instance
-    n = 20
+    n = 500
     points, edges = make_random_instance(n=n, min_degree=4, max_degree=5, max_capacity=100)
     # Choose source and sink nodes
     s = min(range(n), key=lambda i: points[i, 0] + points[i, 1])

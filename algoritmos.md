@@ -30,7 +30,7 @@ Dados um **conjunto de itens**, cada um com um **peso** e um **valor**, e uma mo
 
 ---
 
-## Amedota 
+## Anedota 
 
 * Imagine que  você encontrou um gênio na caverna que pode resolver o problema da mochila para você.
 * Você mostra que tem 5 itens e para decidir quais itens levar.
