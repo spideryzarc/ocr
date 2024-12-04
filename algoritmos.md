@@ -85,13 +85,8 @@ Dados um **conjunto de itens**, cada um com um **peso** e um **valor**, e uma mo
 
 $$
 M(I, W) = \left\{ \begin{array}{ll}
-<<<<<<< HEAD
-0    & \text{se } W \leq 0 \text{ ou }  (\sharp I =1 \text{ e }  w_1 > W) \\
-v_1 & \text{se } \sharp I =1 \text{ e }  w_1 \leq W \\
-=======
 0    & \text{se } W \leq 0 \text{ ou }  \sharp I = 0 \\
 M(I / \{1\}, W) & \text{se } w_1 > W \\
->>>>>>> 1be8fe024c23d29d2379f36b3e9349303e7cc4c5
 \max \{ M(I / \{1\}, W), M(I / \{1\}, W - w_1) +v_1 \} & \text{caso contrário} 
 
 \end{array} \right.

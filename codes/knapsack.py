@@ -16,18 +16,6 @@ def knapsack_rec(itens:list, W:int)->tuple:
         if itens[0]['w'] <= W:
             return ([itens[0]], itens[0]['v'])
         return ([], 0)
-<<<<<<< HEAD
-    
-    # solve assuming the item is taken
-    taken, value = M(itens[1:], W-itens[0]['w'])
-    value += itens[0]['v']
-    # solve assuming the item is not taken
-    not_taken, value2 = M(itens[1:], W)
-    # return the best solution between the two
-    if value > value2: 
-        return (taken + [itens[0]], value)
-    return (not_taken, value2)
-=======
     if itens[0]['w'] > W:
         return knapsack_rec(itens[1:], W)
     else:
@@ -73,7 +61,6 @@ def knapsack_pd(itens:list, W:int)->tuple:
     if M[i][w] != 0:
         taken.append(itens[i])
     return taken, M[n-1][W]
->>>>>>> 1be8fe024c23d29d2379f36b3e9349303e7cc4c5
     
 # Example
 
