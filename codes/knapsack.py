@@ -10,22 +10,22 @@ def M(itens:list, W:int)->tuple:
     '''
     global call_counter
     call_counter += 1
-    
+    # anchor cases
+    if W <= 0: return ([], 0)
     if len(itens) == 1:
         if itens[0]['w'] <= W:
             return ([itens[0]], itens[0]['v'])
         return ([], 0)
-    if itens[0]['w'] > W:
-        return M(itens[1:], W)
-    else:
-        # solve assuming the item is taken
-        taken, value = M(itens[1:], W-itens[0]['w'])
-        value += itens[0]['v']
-        # solve assuming the item is not taken
-        not_taken, value2 = M(itens[1:], W)
-        if value > value2:
-            return (taken + [itens[0]], value)
-        return (not_taken, value2)
+    
+    # solve assuming the item is taken
+    taken, value = M(itens[1:], W-itens[0]['w'])
+    value += itens[0]['v']
+    # solve assuming the item is not taken
+    not_taken, value2 = M(itens[1:], W)
+    # return the best solution between the two
+    if value > value2: 
+        return (taken + [itens[0]], value)
+    return (not_taken, value2)
     
 # Example
 

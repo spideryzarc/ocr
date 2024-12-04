@@ -728,7 +728,7 @@ Dado um **grafo** com **capacidades** nas arestas e dois vértices especiais, o 
   - $s$ : vértice de origem.
   - $t$ : vértice de destino.
 - **Variáveis de Decisão:**
-  - $x_{ij} \in \mathbb{R}^+$, onde $x_{ij}$ é o fluxo na aresta $(i,j)$.   
+  - $x_{ij} \in \mathbb{R}^+$, onde $x_{ij}$ é o fluxo na aresta $(i,j)$ para $i \neq t, j \neq s$. 
 
 ---
 
@@ -736,40 +736,41 @@ Dado um **grafo** com **capacidades** nas arestas e dois vértices especiais, o 
 
 $$
 \begin{align*}
-\max & \sum_{j \in I} x_{sj} \\
+\max & \sum_{j \in I} x_{sj}  + \epsilon \sum_{(i,j) \in A} x_{ij} \\
 \text{s.a.} & \\
 & \sum_{j \in I} x_{kj} - \sum_{j \in I} x_{jk} = 0 \quad \forall k \in I / \{s,t\} \\
-& \sum_{j \in I} x_{sj} = \sum_{i \in I} x_{it} \\
-& \sum_{i \in I} x_{is} = 0 \\
-& \sum_{j \in I} x_{tj} = 0 \\
-& 0 \leq x_{ij} \leq c_{ij} \quad \forall (i,j) \in A
+& 0 \leq x_{ij} \leq c_{ij} \quad \forall (i,j) \in A, i \neq t, j \neq s \\
 \end{align*}
 $$
 
+
+> Onde $\epsilon$ é um valor muito pequeno, usado para evitar que o solver retorne uma solução com **fluxos circulares**.
 ---
 
 ### Modelo PLI Implementado em Python (SCIP)
 
 ```python
 def max_flow(n: int, edges: dict, s: int, t: int) -> tuple:
-    model = Model("max_flow")
-    x = {(i, j): model.addVar(vtype="C", lb=0, ub=C)for (i, j), C in edges.items()}
+ model = Model("max_flow")
+    x = {(i, j): model.addVar(vtype="C", lb=0, ub=cap) 
+         for (i, j), cap in edges.items() 
+            if i != t and j != s} # exclude source and sink nodes
     # Objective: maximize total flow out of source
-    model.setObjective(qsum(x[s, j] for j in range(n) if (s, j) in x), "maximize")
-    # Constraints
+    model.setObjective(qsum(x[s, j] for j in range(n) if (s, j) in x) +
+                       qsum(x[i, j]*-1e-6 for i,j in x), "maximize")
+    # Flow conservation constraints
     for k in range(n):
-        if k == s or k == t:
-            continue
-        model.addCons(qsum(x[i, k] for i in range(n) if (i, k) in x) ==
+        if k not in (s, t):
+            model.addCons(qsum(x[i, k] for i in range(n) if (i, k) in x) ==
                       qsum(x[k, j] for j in range(n) if (k, j) in x))
-    model.addCons(qsum(x[i, s] for i in range(n) if (i, s) in x) == 0)
-    model.addCons(qsum(x[t, j] for j in range(n) if (t, j) in x) == 0)
-    model.addCons(qsum(x[i, t] for i in range(n) if (i, t) in x) ==
-                  qsum(x[s, j] for j in range(n) if (s, j) in x))
+    
+    # Solve the model
+    model.hideOutput()
     model.optimize()
-    if model.getStatus() != "optimal": return 0, {}
+    if model.getStatus() != "optimal":
+        return 0, {}
     max_flow_value = model.getObjVal()
-    flow = {(i, j): model.getVal(x[i, j]) for i, j in x}
+    flow = {(i, j): model.getVal(x[i, j]) for (i, j) in x}
     return max_flow_value, flow
 ```
 
