@@ -97,22 +97,23 @@ $$
 ## Implementação
 
 ```python
-def M(itens:list, W:int)->tuple:
-  #anchor cases
-  if W <= 0: return ([], 0)
-  if len(itens) == 1:
-      if itens[0]['w'] <= W:
-          return ([itens[0]], itens[0]['v'])
-      return ([], 0)    
-  # solve assuming the item is taken
-  taken, value = M(itens[1:], W-itens[0]['w'])
-  value += itens[0]['v']
-  # solve assuming the item is not taken
-  not_taken, value2 = M(itens[1:], W)
-  # return the best solution between the two
-  if value > value2: 
-      return (taken + [itens[0]], value)
-  return (not_taken, value2)
+def knapsack_rec(itens:list, W:int)->tuple:
+# anchor cases
+    if W <= 0 or len(itens) == 0:
+        return ([], 0)
+    # recursive cases
+    if itens[0]['w'] > W:  # first item is too heavy
+        return knapsack_rec(itens[1:], W)
+    else:  # first item can be taken or not
+        # solve assuming the item is taken
+        taken, value = knapsack_rec(itens[1:], W-itens[0]['w'])
+        value += itens[0]['v']  # add the value of the item
+        # solve assuming the item is not taken
+        not_taken, value2 = knapsack_rec(itens[1:], W)
+        # return the best solution
+        if value > value2:
+            return (taken + [itens[0]], value)
+        return (not_taken, value2)
 ```
 
 ---
@@ -141,8 +142,8 @@ Antes de prosseguir, com a definição e caracterização da programação dinâ
 
 - As chamadas recursivas se empilham até o nível mais baixo da árvore.
 - Ali, o algoritmo resolve realmente alguma coisa.
-- Ele resolver o problema de encaixar um único item na mochila para todas as capacidades possíveis.
-- A partir daí, ele começa a desempilhar as chamadas, combinando as soluções dos subproblemas.
+- Ele resolver o problema de **encaixar um único item** na mochila para **todas as capacidades** possíveis.
+- A partir daí, ele começa a desempilhar as chamadas, **combinando as soluções** dos subproblemas.
 - Ele passa a tentar encaixar o segundo item na mochila para todas as capacidades, levando em consideração a solução do primeiro item.
 - E assim por diante, até resolver o problema original.
 
@@ -152,7 +153,171 @@ Antes de prosseguir, com a definição e caracterização da programação dinâ
 
 - deixarmos de lado a recursão e resolvermos os subproblemas de **baixo para cima**?
 - começando com um **único item** e **todas as capacidades** possíveis.
-- e depois tentar encaixar o segundo item, levando em consideração a solução do primeiro item.
+- e depois tentar encaixar o **segundo item**, levando em consideração a **solução do primeiro** item.
 - e assim por diante, até resolver o problema original?
 
 --- 
+
+## Implementação em Python (Didática)
+
+```python
+def knapsack_pd(itens: list, W: int) -> tuple:
+    n = len(itens)  # number of itens
+    M = [[0 for _ in range(W+1)] for _ in range(n+1)]  # matrix to store the values
+    # fill first row with trivial case
+    w0, v0 = itens[0]['w'], itens[0]['v']
+    for w in range(w0, W+1):
+        M[0][w] = v0
+    # fill the rest of the matrix using formula M[i][w] = max(M[i-1][w], M[i-1][w-wi] + vi)
+    for i in range(1, n):
+        wi, vi = itens[i]['w'], itens[i]['v']  # value of the item
+        M[i][:wi] = M[i-1][:wi]  # best value for weight w < wi is the same as the previous row
+        for w in range(wi, W+1):
+            M[i][w] = max(M[i-1][w], M[i-1][w-wi] + vi)
+    # build the list of itens taken
+    taken = []
+    i = n-1
+    w = W
+    while i > 0:
+        if M[i][w] != M[i-1][w]:
+            taken.append(itens[i])
+            w -= itens[i]['w']
+        i -= 1
+    if M[i][w] != 0: taken.append(itens[i])
+    return taken, M[n-1][W]
+```
+
+---
+
+## Implementação em Python ( numpy )
+
+```python
+def knapsack_pd_numpy(itens: list, W: int) -> tuple:
+    n = len(itens)
+    M = np.zeros(W + 1, dtype=int) # array to store the values
+    keep = np.zeros((n, W + 1), dtype=bool) # array to store the items taken
+    M_shifted = np.zeros(W + 1, dtype=int) # auxiliary array to store shifted values
+    for i in range(n):
+        wi, vi = itens[i]['w'], itens[i]['v']
+        if wi <= W:
+            # Shift the M array to the right by wi positions and add vi
+            M_shifted[:] = 0 #  reset the array
+            M_shifted[wi:] = M[:-wi] + vi # shift the array and add the value
+            # Determine whether including the current item offers a better value
+            new_M = np.maximum(M, M_shifted) # recursive formula is applied here
+            # Keep track of items included
+            keep[i] = M_shifted > M
+            M = new_M
+    # Reconstruct the list of items taken
+    w = W
+    taken = []
+    for i in range(n - 1, -1, -1):
+        if keep[i, w]:
+            taken.append(itens[i])
+            w -= itens[i]['w']
+    return taken, M[W]
+```
+
+---
+
+## Complexidade
+
+- O algoritmo de programação dinâmica tem complexidade $O(nW)$.
+- **Não** é considerado **polinomial** no sentido estrito da Teoria da Complexidade Computacional, mesmo sendo **eficiente** em muitos **casos práticos**.
+- Isso ocorre porque a quantidade de **bits** necessária para representar o valor de $W$ é proporcional a $\log W$.
+- A complexidade do algoritmo é, portanto, $O(n2^{\log W}) = O(nW)$.
+- No mundo real, ninguém resolve um *knapscak* para grãos de areia em um navio cargueiro. Ou seja $W$ é **limitado**.
+
+---
+## Programação Dinâmica
+
+- Técnica de **resolução de problemas** complexos por **divisão** em subproblemas menores, **reutilizando** soluções previamente calculadas para **evitar redundância**.
+- **Richard Bellman** (década de 1950)
+  - Desenvolveu a técnica para resolver problemas de decisão sequencial para otimização militar e controle de sistemas dinâmicos.
+- Origem do Termo
+  - **Programação:** Planejamento de processos (não relacionado a computadores na época).
+  - **Dinâmica:** Refere-se a processos que evoluem ao longo do tempo.
+- É uma técnica muito poderosa e versátil, com aplicações em diversas áreas da computação moderna.
+
+---
+
+### Características da Programação Dinâmica
+
+#### 1. Subproblemas sobrepostos
+- Problemas são decompostos em subproblemas menores.
+- **Exemplos:** 
+  - Fibonacci, onde $F(n) = F(n-1) + F(n-2)$.
+  - Problema da mochila, onde $M(I, W) = \max \{ M(I/\{1\}, W), M(I/\{1\}, W-w_1) + v_1 \}$.
+  - Caminho mínimo em grafos, onde $D(i,j) = \min \{ D(i,k) + D(k,j) \}$.
+
+---
+
+#### 2. Memoização
+
+*Memoização* é uma técnica de **armazenamento** de soluções previamente calculadas para **evitar recomputação**.
+
+- **Exemplos:** 
+  - Fibonacci, onde armazenamos o valor de $F(n)$ em uma lista.
+  - Problema da mochila, onde armazenamos o valor de $M(I, W)$ em uma matriz.
+  - Caminho mínimo em grafos, onde armazenamos o valor de $D(i,j)$ em uma matriz.
+
+---
+
+#### 3. Tabela de Solução (*Bottom-Up*)
+- Resolve subproblemas iterativamente.
+- Preenche uma tabela com as soluções intermediárias.
+- ***Bottom-up*** se refere a árvore de recursão, que é resolvida de forma implícita de baixo para cima, das folhas para a raiz.
+
+<br>
+
+> Obs.: As árvores da computação são representadas de cabeça para baixo por convenção e praticidade.
+
+---
+
+### 4. Subestrutura Ótima
+
+- A solução ótima para um problema é construída a partir de soluções ótimas de seus subproblemas.
+- Nem todos os problemas possuem subestrutura ótima. Por exemplo, o TSP, saber a melhor rota entre $n$ cidades não ajuda muito a saber a melhor rota entre $n+1$ cidades.
+   
+
+---
+
+### 5. Complexidade Controlada
+- Resolve problemas evitavelmente exponenciais ao calcular cada subproblema apenas uma vez.
+
+---
+
+### 6. Aplicações
+- Problemas clássicos:
+  - Mochila.
+  - Cadeias de matrizes.
+  - Caminhos mínimos em grafos (Floyd-Warshall).
+  - Subsequência comum máxima (LCS).
+
+---
+
+## Empacotamento <br>(*bin packing*)
+
+Dado um **conjunto de itens** e um conjunto de pacotes (*bins*) com **tamanhos fixos**, 
+o problema de empacotamento consiste em distribuir os itens nos pacotes de forma a **minimizar o número de pacotes utilizados**.
+
+Do ponto de vista do corte, o problema consiste em **cortar** um **material** em **peças menores** de forma a **minimizar o desperdício**.
+
+
+![bg left:50% fit drop-shadow 95%](images/bpp.png)
+
+---
+
+### Algoritmos 
+
+- **Não** existe um algoritmo **polinomial** para o problema de empacotamento que garanta a solução ótima.
+- Veremos neste módulo alguns algoritmos **heurísticos** para o problema de empacotamento.
+  - **First Fit Decreasing**.
+  - **Best Fit Decreasing**.
+  - **Next Fit**.
+  - **Worst Fit**.
+  - **Local Search**.
+- **Não** veremos o **algoritmo ótimo** para o problema de empacotamento, o **algoritmo de Johnson**.
+
+
+
