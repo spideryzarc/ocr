@@ -90,7 +90,7 @@ def tsp_adhoc_subtours(c: np.array, plot=False, points=None) -> tuple:
     model = Model("tsp")
     x = {(i, j): model.addVar(vtype="B") for i in range(n) for j in range(n) if i != j}
     # add objective function
-    model.setObjective(qsum(c[i, j]*x[i, j] for i in range(n) for j in range(n) if i != j), "minimize")
+    model.setObjective(qsum(c[i, j]*x[i, j] for i,j in x), "minimize")
     # add constraints (degree constraints)
     for i in range(n):
         model.addCons(qsum(x[i, j] for j in range(n) if i != j) == 1)
@@ -197,17 +197,18 @@ def make_random_instance(n: int = 10) -> tuple:
     points = np.random.rand(n, 2)
     # cost matrix with Euclidean distance
     c = np.zeros((n, n))
-    for i in range(n):
-        for j in range(n):
-            c[i, j] = np.linalg.norm(points[i] - points[j])
+    # for i in range(n):
+    #     for j in range(n):
+    #         c[i, j] = np.linalg.norm(points[i] - points[j])
+    c = np.linalg.norm(points[:, None] - points, axis=-1)
     return points, c
 
 
 if __name__ == "__main__":
-    points, c = make_random_instance(70)
+    points, c = make_random_instance(40)
     # min_cost, tour = tsp_mtz(c)
     # min_cost, tour = tsp_all_subtours(c)
-    min_cost, tour = tsp_adhoc_subtours(c, plot=True, points=points)
+    min_cost, tour = tsp_adhoc_subtours(c, plot=False, points=points)
     print("Min Cost:", min_cost)
 
     # plot tour
