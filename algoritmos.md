@@ -312,12 +312,93 @@ Do ponto de vista do corte, o problema consiste em **cortar** um **material** em
 
 - **Não** existe um algoritmo **polinomial** para o problema de empacotamento que garanta a solução ótima.
 - Veremos neste módulo alguns algoritmos **heurísticos** para o problema de empacotamento.
-  - **First Fit Decreasing**.
-  - **Best Fit Decreasing**.
+  - **First Fit**.
   - **Next Fit**.
+  - **Best Fit**.
   - **Worst Fit**.
   - **Local Search**.
-- **Não** veremos o **algoritmo ótimo** para o problema de empacotamento, o **algoritmo de Johnson**.
+
+---
+
+#### *First Fit Decreasing*
+
+1. Ordena os itens em ordem decrescente de tamanho.
+2. Para cada item, tenta encaixá-lo no **primeiro pacote que encontrar**.
+3. Se não couber em nenhum pacote, cria um novo pacote.
+
+- **Complexidade:** $O(n^2)$.
+
+---
+
+#### *Next Fit Decreasing*
+
+1. Ordena os itens em ordem decrescente de tamanho.
+2. Para cada item, tenta encaixá-lo no **último pacote** criado.
+3. Se não couber, cria um novo pacote.
+
+- **Complexidade:** $O(n)$.
+- Mais usados como *decoder* de algoritmos de empacotamento.
+
+ 
+---
+
+#### *Best Fit Decreasing*
+
+1. Ordena os itens em ordem decrescente de tamanho.
+2. Para cada item, tenta encaixá-lo no pacote que **melhor** se ajusta ao seu tamanho.
+3. Se não couber em nenhum pacote, cria um novo pacote.
+
+- **Complexidade:** $O(n^2)$.
+- *Melhor* significa o pacote com **menor espaço livre** após a inserção.
+- O objetivo é **minimizar o desperdício**.
+
+---
+
+#### *Worst Fit Decreasing*
+
+1. Ordena os itens em ordem decrescente de tamanho.
+2. Para cada item, tenta encaixá-lo no pacote com **maior espaço livre**.
+3. Se não couber, cria um novo pacote.
+
+- **Complexidade:** $O(n^2)$.
+- *Pior* significa o pacote com **maior espaço livre** após a inserção.
+- O objetivo é **facilitar futuras inserções**.
+
+
+---
+
+#### *Local Search*
+
+Busca local é uma estratégia de otimização que **explora** o espaço de soluções a partir de uma solução inicial, **modificando** iterativamente a solução para **melhorar** o valor da **função objetivo**.
+
+- **Vizinhança:** Conjunto de soluções que podem ser obtidas a partir de uma solução dada, geralmente por **pequenas modificações**.
+
+---
+
+#### *Local Search* Algoritmo
+
+1. **Inicialização:** Gera uma solução inicial, solução corrente.
+2. **Vizinhança:** Gera um conjunto de soluções vizinhas da solução corrente.
+3. **Seleção:** Escolha um vizinho que melhore a solução corrente como nova solução corrente e vá para o **passo 2**.
+4. **Critério de Parada:** Senão houver solução melhor na vizinhança, termina.
+
+<br>
+
+> O passo 3 pode tomar o **melhor vizinho** ou o **primeiro vizinho** encontrado que melhore a solução atual.
+
+---
+
+#### *Local Search* para Empacotamento
+
+A Implementação da busca local para o problema de empacotamento apresenta alguns complicadores:
+
+- A **função objetivo** é muito pouco *sensível* a pequenas modificações.
+- Troca pares de itens entre pacote não afeta a função objetivo.
+- Esvaziar um pacote e redistribuir os itens não é uma operação trivial.
+
+Por isso, vamos implementar **duas versões**.
+1. **F.O. Original:** Minimizar o número de pacotes.
+2. **F.O. Alternativa:** Maximizar a variância da carga dos pacotes.
 
 
 
