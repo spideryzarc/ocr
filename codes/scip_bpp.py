@@ -48,7 +48,7 @@ def bpp(n: int, m: int, w: np.array, C: int) -> tuple:
 
 
 if __name__ == "__main__":
-    n = 20
+    n = 50
     m = n
     C = 100
     w = np.random.randint(1, 2*C//3, n)
