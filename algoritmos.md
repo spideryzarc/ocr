@@ -401,4 +401,75 @@ Por isso, vamos implementar **duas versões**.
 2. **F.O. Alternativa:** Maximizar a variância da carga dos pacotes.
 
 
+---
+
+# Cobertura de Conjuntos (*Set Cover*)
+
+Dado um **conjunto de elementos** e um **conjunto de subconjuntos**, o problema de cobertura de conjuntos consiste em **selecionar o menor número de subconjuntos** de forma a **cobrir todos os elementos**.
+
+![bg right:50% fit drop-shadow 95%](images/set_cover.png)
+
+---
+
+Assim como o *bin packing*, o problema de cobertura de conjuntos é **NP-difícil**. Ou seja, devemos utilizar métodos **heurísticos** para encontrar soluções em tempo **razoável**.
+
+---
+
+## Algoritmo Guloso (*Greedy*)
+
+- Constroi uma solução iterativamente, tmando uma escolha a cada passo que parece ser a melhor no momento.
+- Uma vez tomada uma decisão, ela não será mais alterada (*straigthforward*).
+- As decições são baseadas em um critério heurístico.
+  - **Set Cover:** Escolhe o subconjunto que cobre o maior número de elementos ainda não cobertos.
+  - Se o problema for ponderado, escolhe o subconjunto com o menor custo dividido pelo número de elementos não cobertos.
+
+---
+
+### Implementação em Python
+
+```python
+# TODO
+```
+
+---
+
+## *Greedy Randomized Adaptive Search Procedure* (*GRASP*)
+
+- GRASP é uma metaheurística que foca na construção de boas soluções aleatórias e na busca local para melhorar essas soluções.
+- Podemos implementar um GRASP apenas alterando o critério de escolha do subconjunto no algoritmo guloso.
+- A escolha é feita de forma aleatória, com maior probabilidade para os subconjuntos com melhor avaliação.
+  - Roleta viciada.
+    - Probabilidade proporcional ao ranque.
+    - Probabilidade proporcional à avaliação.
+  - Lista restrita de candidatos.
+
+---
+
+### Implementação em Python
+
+```python
+# TODO
+```
+
+---
+
+## *Large Neighborhood Search* (*LNS*)
+
+- LNS é uma metaheurística que foca na busca local, mas com uma estratégia diferente.
+- A solução corrente é parcialmente destruída e reconstruída.
+- Podemos implementar um LNS removendo, de forma aleatória, alguns subconjuntos da solução corrente e reconstruindo a solução a partir dos elementos não cobertos.
+
+---
+
+### Implementação em Python
+
+```python
+# TODO
+```
+
+---
+
+
+  
+
 
