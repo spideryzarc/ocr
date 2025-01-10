@@ -101,7 +101,7 @@ def grasp(sets: list, max_iter: int = 10) -> list:
     best_cost = float('inf')
     for _ in range(max_iter):
         solution = greedy_randomized(sets)
-        solution = LNS(sets, solution)
+        solution = LNS(sets, solution,k=len(solution)//2)
         cost = len(solution)
         if cost < best_cost:
             best_cost = cost
