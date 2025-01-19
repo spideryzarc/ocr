@@ -19,7 +19,7 @@ def nearest_neighbor(c:np.ndarray)->list:
     # tour.append(0)
     return tour
 
-def best_insertion(c:np.ndarray, ins_order:list,points:list=None)->list:
+def best_insertion(c:np.ndarray, ins_order:list,points:np.ndarray=None)->list:
     ''' find a tour using the best insertion heuristic, with a given order of the cities
     c: cost matrix
     ins_order: order of the cities to be inserted
@@ -49,7 +49,7 @@ def best_insertion(c:np.ndarray, ins_order:list,points:list=None)->list:
             tour.append(i)
         else:
             tour.insert(min_idx, i)
-        if points:
+        if points is not None:
             plot_tour(points, tour)
     return tour
     
@@ -144,7 +144,7 @@ def two_opt(c:np.ndarray, tour:list)->bool:
     return False
                     
 
-def VND(c:np.ndarray, tour:list, points:list = None)->None:
+def VND(c:np.ndarray, tour:list, points:np.ndarray = None)->None:
     ''' perform a Variable Neighborhood Descent in the tour to improve it 
     c: cost matrix
     tour: current tour to be improved, will be modified in place
@@ -155,7 +155,7 @@ def VND(c:np.ndarray, tour:list, points:list = None)->None:
     while True:
         for neighborhood in neighborhoods:
             if neighborhood(c, tour):
-                if points: # plot the tour if points are given
+                if points is not None: # plot the tour if points are given
                     plot_tour(points, tour)
                 if __debug__: # print the cost for debug only
                     print("VND, ", neighborhood.__name__, cost(c, tour))
