@@ -32,7 +32,7 @@ def best_insertion(c:np.ndarray, ins_order:list,points:np.ndarray=None)->list:
     if len(ins_order) <= 3:
         return ins_order # trivial case
     tour = ins_order[:3] # start with the first 3 cities
-    if points: 
+    if points is not None: # plot the tour if points are given 
         plot_tour(points, tour)
     for i in ins_order[3:]: # insert the remaining cities
         # find the best place to insert city i

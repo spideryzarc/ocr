@@ -435,7 +435,7 @@ Assim como o *bin packing*, o problema de cobertura de conjuntos é **NP-difíci
 
 ## *Greedy Randomized Adaptive Search Procedure* (*GRASP*)
 
-- GRASP é uma metaheurística que foca na construção de boas soluções aleatórias e na busca local para melhorar essas soluções.
+- GRASP é uma meta-heurística que foca na construção de boas soluções aleatórias e na busca local para melhorar essas soluções.
 - Podemos implementar um GRASP apenas alterando o critério de escolha do subconjunto no algoritmo guloso.
 - A escolha é feita de forma aleatória, com maior probabilidade para os subconjuntos com melhor avaliação.
   - Roleta viciada.
@@ -455,7 +455,7 @@ Assim como o *bin packing*, o problema de cobertura de conjuntos é **NP-difíci
 
 ## *Large Neighborhood Search* (*LNS*)
 
-- LNS é uma metaheurística que foca na busca local, mas com uma estratégia diferente.
+- LNS é uma meta-heurística que foca na busca local, mas com uma estratégia diferente.
 - A solução corrente é parcialmente destruída e reconstruída.
 - Podemos implementar um LNS removendo, de forma aleatória, alguns subconjuntos da solução corrente e reconstruindo a solução a partir dos elementos não cobertos.
 
@@ -469,7 +469,323 @@ Assim como o *bin packing*, o problema de cobertura de conjuntos é **NP-difíci
 
 ---
 
+## Problema do Caixeiro Viajante <br>(*traveling salesman problem - TSP*)
 
-  
+Dado um **conjunto de cidades** e as **distâncias** entre elas, o problema do caixeiro viajante consiste em encontrar a **rota mais curta** que **visite todas as cidades uma vez** e retorne à cidade de origem.
+
+O problema é **NP-Completo**, o que significa que não existe um algoritmo eficiente para resolvê-lo em tempo polinomial.
+
+![bg right:40% fit drop-shadow 95%](images/tsp.png)
+
+
+---
+
+### Algoritmos
+
+**Não** há um algoritmo **polinomial** para o TSP. No entanto, existem **inúmeros** algoritmos **heurísticos** propostos para encontrar soluções aproximadas.
+
+Neste curso vamos abordar os seguintes algoritmos:
+- Construtivos:
+  - **Nearest Neighbor**.
+  - **(Farthest) Insertion**.
+- Busca Local:
+  - **2-Opt**.
+  - **Or-Opt**
+- Meta-heurísticas:
+  - **Variable Neighborhood Descent**.
+
+---
+
+### Algoritmo do Vizinho Mais Próximo (*Nearest Neighbor*)
+
+1. **Inicialização:** Escolhe uma cidade qualquer como origem.
+2. **Seleção:** Para cada cidade, escolhe a cidade mais próxima que ainda não foi visitada.
+3. **Critério de Parada:** Todas as cidades foram visitadas.
+
+<br>
+
+> **Complexidade:** $O(n^2)$.
+> Resultados **dependem** da cidade de origem.
+> Geralmente, é a abordagem mais simples/intuitiva para o TSP.
+
+---
+
+### Implementação em Python
+
+```python
+def nearest_neighbor(c:np.ndarray)->list:
+    n = len(c) # number of cities
+    unvisited = set(range(1,n)) # set of unvisited cities (all except 0)
+    tour = [0] # start at city 0
+    current = 0 # current city
+    while unvisited:
+        # witch unvisited city is the nearest?
+        next = min(unvisited, key=lambda j: c[current,j])
+        unvisited.remove(next) # remove from unvisited set
+        tour.append(next) # add to the tour
+        current = next # move to the next city
+    # tour.append(0)
+    return tour
+```
+
+---
+
+### Algoritmo da Inserção (*Insertion*)
+
+Dada uma ordem de inclusão das cidades, o algoritmo da inserção consiste em **inserir** cada cidade na **melhor posição** da rota atual.
+
+1. **Inicialização:** Crie um ciclo com as três primeiras cidades.
+2. **Seleção:** Para cada cidade, insira-a na melhor posição da rota atual.
+3. **Critério de Parada:** Todas as cidades foram visitadas.
+
+<br>
+
+> **Complexidade:** $O(n^2)$.
+> Resultados **dependem** da ordem de inclusão das cidades.
+> Soluções **melhores** que o *Nearest Neighbor*.
+
+---
+
+### Implementação em Python
+
+```python
+def insertion(c:np.ndarray, ins_order:list)->list:
+    n = len(c) # number of cities
+    tour = ins_order[:3] # start with the first 3 cities
+    for i in ins_order[3:]: # insert the remaining cities
+        # find the best place to insert city i
+        min_cost = np.inf
+        for j in range(1, len(tour)):
+            # cost of inserting i between j-1 and j
+            cost = c[tour[j-1],i] + c[i,tour[j]] - c[tour[j-1],tour[j]]
+            if cost < min_cost:
+                min_cost = cost
+                min_idx = j                
+        if c[tour[-1],i] + c[i,tour[0]] - c[tour[-1],tour[0]] < min_cost:
+            # better to insert at the end
+            tour.append(i)
+        else:
+            tour.insert(min_idx, i)
+        if points is not None:
+            plot_tour(points, tour)
+    return tour
+```
+
+---
+
+### *Furthest Insertion*
+
+Se trata de uma variação do algoritmo da inserção que **insere** a cidade mais **distante** da rota atual.
+
+Construção da **ordem de inclusão**:
+1. **Inicialização:** A primeira e segunda cidades são as mais distantes.
+2. **Seleção:** A próxima cidade é que apresenta a maior distância para a cidade mais próxima já incluída.
+3. **Critério de Parada:** Todas as cidades foram selecionadas.
+
+Uma vez que a ordem de inclusão é definida, o algoritmo da inserção é aplicado.
+
+> **Complexidade:** $O(n^2)$.
+> Pode haver outra ordenação que resulte em uma solução melhor.
+---
+
+### Implementação em Python
+
+```python
+def furthest_order(c:np.ndarray)->list:
+    n = len(c) # number of cities
+    i,j = np.unravel_index(c.argmax(), c.shape) # find the furthest pair
+    order = [i,j] # start with the furthest pair
+    dist = np.minimum(c[i], c[j]) # dist[i] is the distance from i to the nearest city in the tour
+    dist[i] = dist[j] = -1 # sinalize that i and j are already in the tour
+    for _ in range(n-2): # add the remaining cities
+        k = np.argmax(dist) # find the furthest city 
+        order.append(k) # add to the list
+        dist = np.minimum(dist, c[k]) # update the distances
+        dist[k] = -1 # sinalize that k is already in the tour
+    return order
+
+# Furthest Insertion
+order = furthest_order(c)
+tour = insertion(c, order)
+
+```
+
+---
+
+### *2-Opt*
+
+O 2-Opt é uma vizinhança de troca de arestas que consiste em **remover** duas arestas da rota e **reconectar** as cidades de forma a **reduzir** o comprimento da rota.
+
+> **Complexidade:** $O(n^2)$.
+
+![bg right:50% fit drop-shadow 95%](images/2opt.png)
+
+
+---
+
+### Implementação em Python
+
+```python
+def two_opt(c:np.ndarray, tour:list)->bool:
+    n = len(c) # number of cities
+    for i in range(n):
+        for j in range(i+2, n-(i==0)): # i+2 to avoid adjacent edges and n-1 if i==0
+            delta = c[tour[i],tour[j]] + c[tour[i+1],tour[(j+1)%n]] \
+                    -c[tour[i],tour[i+1]] - c[tour[j],tour[(j+1)%n]]
+            if delta < -1e-6:
+                if j == n-1:
+                    tour[i+1:] = tour[i+1:][::-1]
+                else:
+                    tour[i+1:j+1] = tour[j:i:-1]
+                return True
+    return False
+```
+
+---
+
+### *Or-Opt*
+
+O Or-Opt é uma vizinhança de deslocamento que consiste em **remover** um conjunto de cidades da rota e **reinserir** em uma nova posição.
+
+
+> **Complexidade:** $O(n^2)$.
+
+![bg right:50% fit drop-shadow 95%](images/oropt.png)
+
+---
+
+
+### Implementação em Python ( desloca uma única cidade )
+
+```python
+def or_opt(c:np.ndarray, tour:list)->bool:
+    n = len(c) # number of cities
+    for i in range(n): # try to move each city
+        # calculate the cost of removing i 
+        rem_delta =  c[tour[i-1],tour[(i+1)%n]] \
+                    -c[tour[i-1],tour[i]] - c[tour[i],tour[(i+1)%n]]
+        for j in range(n): # try to insert i in each position 
+            if j in (i, post_i): continue # skip i, i-1 and i+1 
+            # calculate the cost of adding i in position j
+            add_delta = -c[tour[j-1],tour[j]] \
+                        +c[tour[j-1],tour[i]] + c[tour[i],tour[j]]
+            if add_delta + rem_delta < -1e-6: # if the move is improving
+                if i < j: # first remove i, then insert it in position j                    
+                    tour.insert(j, tour[i])
+                    tour.pop(i)
+                else:# first insert i in position j, then remove the original i                    
+                    vi = tour.pop(i)
+                    tour.insert(j, vi)
+                return True 
+    return False
+```
+> Obs.: Em Python `tour[-1]` é o último elemento da lista.
+
+<!-- _footer: '' -->
+
+---
+
+### Outras Vizinhanças
+
+Para citar algumas outras vizinhanças comuns:
+- **swap:** Troca a posição de duas cidades.
+- **3-Opt:** Vizinhança de troca de 3 arestas.
+- **4-Opt:** Vizinhança de troca de 4 arestas.
+- **k-Opt:** Vizinhança de troca de k arestas.
+- **Lin-Kernighan:** Inversão **recursiva** de sub-rotas.
+
+---
+
+### *Variable Neighborhood Descent* (*VND*)
+
+O VND é uma meta-heurística que combina **múltiplas vizinhanças** para explorar o espaço de soluções.
+
+1. **Inicialização:** Gera uma solução inicial.
+2. **Vizinhança:** Aplica uma sequência de vizinhanças até encontrar uma solução melhor.
+3. **Critério de Parada:** Não há mais soluções melhores em qualquer vizinhança.
+
+
+<br>
+
+- A performance do VND depende da **qualidade**, **diversidade** e **ordem** das vizinhanças.
+- Pode ser usado como método de descida em combinação com outras meta-heurísticas.
+
+---
+
+### Implementação em Python
+
+```python
+def VND(c:np.ndarray, tour:list, points:np.ndarray = None)->None:
+    # list of neighborhoods
+    neighborhoods = [two_opt, or_opt]
+    while True:
+        for neighborhood in neighborhoods:
+            if neighborhood(c, tour):
+                if __debug__: # print the cost for debug only
+                    print("VND, ", neighborhood.__name__, cost(c, tour))
+                break # go back to the first neighborhood
+        else: # if no improving move was found in any neighborhood
+            break # stop the search
+```
+
+---
+
+
+## Árvore Geradora Mínima <br> (*minimum spanning tree - MST*)
+
+Dado um **grafo conexo** e **ponderado**, o problema da árvore geradora mínima consiste em encontrar a **árvore** que conecta todos os vértices com o **menor custo total**.
+
+![bg right:50% fit](images/mst.svg) 
+
+<br>
+
+> Árvore na teoria dos grafos é um subgrafo **conexo** e **acíclico**.
+
+---
+
+### Algoritmos 
+
+O MST é um problema que permite a aplicação de algoritmos **gulosos** para encontrar a solução **ótima** em tempo **polinomial**.
+
+Os algoritmos mais conhecidos são:
+
+- **Kruskal**.
+- **Prim**.
+
+---
+
+### Algoritmo de Kruskal
+
+1. **Ordena** as **arestas** do grafo em ordem **crescente** de peso.
+2. Para cada aresta, se ela **não** forma um **ciclo** com as arestas já selecionadas, **adiciona** a árvore.
+3. Repete o passo 2 até que a árvore tenha $n-1$ arestas. 
+
+
+---
+
+### Implementação em Python
+
+```python
+# TODO
+```
+
+---
+
+### Algoritmo de Prim
+
+1. **Inicializa** a árvore com um vértice qualquer.
+2. **Enquanto** a árvore não contiver todos os vértices:
+   - **Escolhe** a aresta de menor peso que conecta um vértice da árvore a um vértice fora da árvore.
+   - **Adiciona** a aresta e o vértice à árvore.
+
+---
+
+### Implementação em Python
+
+```python
+# TODO
+```
+
+---
 
 
