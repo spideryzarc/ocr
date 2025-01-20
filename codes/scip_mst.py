@@ -43,10 +43,7 @@ def make_random_instance(n: int = 10) -> tuple:
     # list of random points
     points = np.random.rand(n, 2)
     # cost matrix with Euclidean distance
-    c = np.zeros((n, n))
-    for i in range(n):
-        for j in range(n):
-            c[i, j] = np.linalg.norm(points[i] - points[j])
+    c = np.linalg.norm(points[:, None] - points, axis=-1)
     return points, c
 
 
