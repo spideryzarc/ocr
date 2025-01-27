@@ -766,7 +766,23 @@ Os algoritmos mais conhecidos são:
 ### Implementação em Python
 
 ```python
-# TODO
+def Kruskal(c:np.ndarray, edges:list = None) -> list:
+    n = len(c)   
+    if edges is None: # complete graph
+        edges = [(i, j) for i in range(n) for j in range(i)]       
+    edges.sort(key=lambda x: c[x[0], x[1]])    
+    parent = list(range(n))
+    def find(u): # find the root of the component of u
+        if parent[u] != u: # u is not the root
+            parent[u] = find(parent[u]) # path compression
+        return parent[u]
+    arcs = []
+    for u, v in edges: # iterate over the edges 
+        pu, pv = find(u), find(v) # find the roots of the components
+        if pu != pv: # u and v are in different components
+            arcs.append((u, v)) # add the edge to the tree
+            parent[pu] = pv # merge the components
+    return arcs
 ```
 
 ---
@@ -783,9 +799,109 @@ Os algoritmos mais conhecidos são:
 ### Implementação em Python
 
 ```python
-# TODO
+def Prim(c:np.ndarray,edges:list = None)->list:
+    n = len(c) # number of vertices
+   if edges is not None: # not a complete graph
+        idx_i,idx_j = zip(*edges) # unzip the edges
+        c_ = np.full((n, n), np.inf) # create a new cost matrix with inf values
+        c_[idx_i, idx_j] = c[idx_i, idx_j] # copy the weights from the original graph
+        c = c_ # replace the original graph        
+    closest_in_tree = np.zeros(n, dtype=int) # closest vertex in the tree
+    min_dist = c[0] # minimum distance to the tree
+    non_tree = set(range(1, n)) # set of vertices not in the tree
+    arcs = [] # list of arcs in the tree
+    while non_tree: # while there are vertices outside the tree
+        u = min(non_tree, key=lambda x: min_dist[x]) # find the closest vertex
+        non_tree.remove(u) # remove from the set
+        v = closest_in_tree[u] # find the closest vertex in the tree
+        arcs.append((u, v)) # add the edge to the tree
+        for w in non_tree: # update min_dist and closest_in_tree
+            if c[u, w] < min_dist[w]:
+                min_dist[w] = c[u, w]
+                closest_in_tree[w] = u
+    return arcs
+```
+
+<!-- _footer: '' -->
+
+---
+
+## Caminho Mínimo <br> (*shortest path*)
+
+Dado um **grafo** com **arestas ponderadas** e um **vértice de origem**, o problema do caminho mínimo consiste em encontrar o **caminho de menor custo** entre o vértice de origem e todos os outros vértices ou um vértice de destino.
+
+![bg left:50% fit drop-shadow 95%](images/shortest_path.png)
+
+---
+
+### Algoritmos
+
+O problema do caminho mínimo é um dos problemas mais estudados na teoria dos grafos e possui **diversos algoritmos** para sua resolução.
+
+Os algoritmos mais conhecidos são:
+
+- **Dijkstra**.
+- **Bellman-Ford**.
+- **Floyd-Warshall**.
+
+---
+
+### Algoritmo de Dijkstra
+
+Para pesos **não negativos**, o algoritmo de Dijkstra é uma solução **eficiente** para o problema do caminho mínimo.
+
+1. **Inicializa** a distância do vértice de origem como zero e dos demais vértices como infinito.
+2. **Enquanto** houver vértices não visitados:
+   - **Escolhe** o vértice não visitado mais próximo do vértice de origem.
+   - **Atualiza** as distâncias dos vértices adjacentes ao vértice escolhido.
+   - **Marca** o vértice como visitado.
+   - **Repete** até que todos os vértices tenham sido visitados.
+3. **Retorna** as distâncias mínimas.
+
+---
+
+### Implementação em Python
+
+```python
+#TODO
 ```
 
 ---
 
+### Algoritmo de Bellman-Ford
+ Resolve o problema do caminho mínimo para grafos direcionados, mesmo na presença de pesos **negativos**. Também detecta **ciclos negativos**.
+
+1. **Inicializa** a distância do vértice de origem como zero e dos demais vértices como infinito.
+2. **Relaxa** as arestas $|V|-1$ vezes.
+3. **Verifica** se há ciclos negativos.
+4. **Retorna** as distâncias mínimas.
+
+---
+
+#### Relaxamento de Arestas
+
+O relaxamento de uma aresta $(u,v)$ consiste em **atualizar** a distância de $v$ se a distância de $u$ somada ao peso da aresta for menor que a distância atual de $v$.
+
+$$
+\text{dist}[v] = \min(\text{dist}[v], \text{dist}[u] + \text{peso}(u,v))
+$$
+
+Ao mesmo tempo, atualizamos o **vértice anterior** de $v$ para $u$ para posterior reconstrução do caminho.
+
+---
+
+#### Verificação de Ciclos Negativos
+
+Para verificar a presença de ciclos negativos, basta **relaxar** todas as arestas mais uma vez. Se alguma distância for **atualizada**, então há um ciclo negativo, pois a distância mínima não deveria mudar após $|V|-1$ relaxamentos.
+
+
+---
+
+### Implementação em Python
+
+```python
+#TODO
+```
+
+---
 

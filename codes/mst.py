@@ -1,7 +1,7 @@
 from scip_mst import make_random_instance, plot_mst_sol
 import numpy as np
 
-def Kruskal(c:np.ndarray, edges:list = None) -> tuple:
+def Kruskal(c:np.ndarray, edges:list = None) -> list:
     '''
     c: np.array - cost matrix
     edges: list - list of edges (i,j), if None, complete graph is considered
@@ -31,7 +31,7 @@ def Kruskal(c:np.ndarray, edges:list = None) -> tuple:
     return arcs
 
 
-def Prim(c:np.ndarray,edges:list = None):
+def Prim(c:np.ndarray,edges:list = None)->list:
     '''
     c: np.array - cost matrix
     edges: list - list of edges (i,j), if None, complete graph is considered
@@ -40,9 +40,8 @@ def Prim(c:np.ndarray,edges:list = None):
     n = len(c)
     if edges is not None:
         c_ = np.full((n, n), np.inf)
-        for i, j in edges:
-            c_[i, j] = c[i, j]
-            c_[j, i] = c[j, i]
+        idx_i,idx_j = zip(*edges)
+        c_[idx_i, idx_j] = c[idx_i, idx_j]
         c = c_
         
     closest_in_tree = np.zeros(n, dtype=int)
