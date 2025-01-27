@@ -29,20 +29,21 @@ def make_random_instance(n: int = 10, min_degree: int = 2, max_degree: int = 5) 
     return points, edges
 
 
-def plot_path(points, path=None):
+def plot_path(points,edges=None, path=None):
     '''
     points: np.array - list of points in the plane
     edges: dict - edge[i][j] = cost
     path: list - list of points indices
     '''
     fig, ax = plt.subplots()
-    for i, j in edges.keys():
-        arrow = mpatches.FancyArrow(points[i, 0], points[i, 1],
-                                    points[j, 0] - points[i, 0],
-                                    points[j, 1] - points[i, 1],
-                                    width=0.001, length_includes_head=True,
-                                    color='#cfb6b6')
-        ax.add_patch(arrow)
+    if edges is not None:
+        for i, j in edges.keys():
+            arrow = mpatches.FancyArrow(points[i, 0], points[i, 1],
+                                        points[j, 0] - points[i, 0],
+                                        points[j, 1] - points[i, 1],
+                                        width=0.001, length_includes_head=True,
+                                        color='#cfb6b6')
+            ax.add_patch(arrow)
         # plt.text((points[i, 0] + points[j, 0]) / 2, (points[i, 1] + points[j, 1]) / 2, f'{edges[i][j]:.2f}', color='blue')
 
     plt.scatter(points[1:-1, 0], points[1:-1, 1], color='black')
