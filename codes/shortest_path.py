@@ -104,9 +104,9 @@ def Floyd_Warshall_path(nxt: np.ndarray, s: int, t: int) -> list:
 
 if __name__ == "__main__":
     # Generate random instance
-    n = 100
+    n = 200
     # np.random.seed(0)
-    points, edges = make_random_instance(n=n, min_degree=4, max_degree=5)
+    points, edges = make_random_instance(n=n, min_degree=4, max_degree=7)
 
     # convert to adjacency list
     adj = {i: [] for i in range(n)}
@@ -120,6 +120,7 @@ if __name__ == "__main__":
     # min_cost, path = Dijkstra(adj, s, t)
     # min_cost, path = Bellman_Ford(adj, s, t)
     dist, nxt = Floyd_Warshall(adj)
+    
     path = Floyd_Warshall_path(nxt, s, t)
 
     plot_path(points, edges, path)

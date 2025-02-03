@@ -1020,6 +1020,7 @@ Dado um **grafo** com **capacidades** nas arestas e dois vértices especiais, o 
 
 ---
 
+
 ### Algoritmos
 
 O problema do fluxo máximo é um dos problemas mais estudados na teoria dos grafos e possui **diversos algoritmos** para sua resolução.
@@ -1073,7 +1074,12 @@ Usamos o algoritmo de **DFS** para encontrar um caminho aumentante.
 
 
 ---
+### Exemplo
 
+![bg right:75% fit drop-shadow 98%](images/max_flow2.png)
+
+
+---
 ### Implementação em Python
 
 ```python
