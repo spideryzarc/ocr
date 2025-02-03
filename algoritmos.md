@@ -863,9 +863,30 @@ Para pesos **não negativos**, o algoritmo de Dijkstra é uma solução **eficie
 ### Implementação em Python
 
 ```python
-#TODO
+from heapq import heappush as push, heappop as pop
+def Dijkstra(adj:dict, s:int, t:int) -> tuple:
+    n = len(adj) # number of nodes
+    dist = [np.inf]*n # known shortest distance from source to i
+    dist[s] = 0 # distance from source to itself is 0
+    prev = [-1]*n # previous node in the shortest path 
+    heap = [(0, s)] # (distance, node) pairs to be explored
+    while heap: # while there are nodes to be explored
+        c_si, i = pop(heap) # get the node with the smallest distance
+        if i == t: break # target node reached
+        if c_si > dist[i]: continue # skip this node, it has already been explored
+        for j, c_ij in adj[i]: # for each neighbor j of i
+            if dist[j] > c_si + c_ij: # if the distance from source to j is shorter via i
+                dist[j] = c_si + c_ij # update the distance
+                prev[j] = i # update the previous node in the shortest path
+                push(heap, (dist[j], j)) # add j to the nodes to be explored
+    if i != t: # target node is not reachable
+        raise ValueError("Target node is not reachable")
+    path = [t] # reconstruct the shortest path from target to source
+    while path[-1] != s: path.append(prev[path[-1]])
+    return dist[t], path[::-1] # return the shortest distance and the path in reverse order
 ```
 
+<!-- _footer: '' -->
 ---
 
 ### Algoritmo de Bellman-Ford
@@ -886,13 +907,169 @@ $$
 \text{dist}[v] = \min(\text{dist}[v], \text{dist}[u] + \text{peso}(u,v))
 $$
 
-Ao mesmo tempo, atualizamos o **vértice anterior** de $v$ para $u$ para posterior reconstrução do caminho.
+Ao mesmo tempo, atualizamos o **vértice anterior** de $v$ para $u$ para posterior reconstrução do caminho se necessário.
+
+$$
+\text{prev}[v] = u
+$$
+
+<br>
+
+> O relaxamento nada mais é do quer se perguntar ***"é melhor chegar em $v$ passando por $u$?"***.
 
 ---
 
 #### Verificação de Ciclos Negativos
 
-Para verificar a presença de ciclos negativos, basta **relaxar** todas as arestas mais uma vez. Se alguma distância for **atualizada**, então há um ciclo negativo, pois a distância mínima não deveria mudar após $|V|-1$ relaxamentos.
+- Para verificar a presença de ciclos negativos, basta **relaxar** todas as arestas mais uma vez.
+
+- Se alguma distância for **atualizada**, então há um ciclo negativo, pois a distância mínima não deveria mudar após $|V|-1$ relaxamentos.
+
+
+---
+
+### Implementação em Python
+
+```python
+def Bellman_Ford(adj:dict, s:int, t:int) -> tuple:
+    n = len(adj) # number of nodes
+    dist = [np.inf]*n # known shortest distance from source to i
+    dist[s] = 0 # distance from source to itself is 0
+    prev = [-1]*n # previous node in the shortest path
+    for k in range(n): # repeat n times
+        flag = False # flag to check if the distance is updated
+        for i in range(n): # for each node i
+            for j, c_ij in adj[i]: # for each neighbor j of i
+                if dist[j] > dist[i] + c_ij: # Relaxation
+                    flag = True # distance is updated
+                    dist[j] = dist[i] + c_ij # update the distance
+                    prev[j] = i # update the previous node in the shortest path
+                    if k == n-1: raise ValueError("Negative cycle detected")
+        if not flag: break # if no distance is updated, the algorithm is converged
+    if dist[t] == np.inf: raise ValueError("Target node is not reachable")
+    path = [t] # reconstruct the shortest path from target to source
+    while path[-1] != s:
+        path.append(prev[path[-1]])
+    return dist[t], path[::-1] # return the shortest distance and the path in reverse order
+```
+
+<!-- _footer: '' -->
+
+---
+
+### Algoritmo de Floyd-Warshall
+
+O algoritmo de Floyd-Warshall é uma solução **eficiente** para o problema do caminho mínimo em **grafos densos** **sem ciclos negativos**.
+
+1. **Inicializa** a matriz de distâncias com os pesos das arestas.
+2. **Para** cada vértice $k$ (intermediário):
+   - **Para** cada par de vértices $i$ e $j$:
+     - **Atualiza** a distância de $i$ a $j$ passando por $k$ se for menor que a distância atual.
+     - **Atualiza** o vértice anterior de $j$ para $k$ se a distância for atualizada.
+3. **Retorna** a matriz de distâncias e a matriz de vértices anteriores.
+
+> A partir da matriz de vértices anteriores, é possível **reconstruir** o caminho mínimo entre qualquer par de vértices.  
+
+---
+
+### Implementação em Python
+
+```python
+def Floyd_Warshall(adj: dict) -> np.ndarray:
+    n = len(adj)  # number of nodes
+    dist = np.full((n, n), np.inf)  # known shortest distance from i to j
+    nxt = np.full((n, n), -1, dtype=int)  # intermediate node in the shortest path from i to j 
+    np.fill_diagonal(dist, 0)  # distance from i to itself is 0
+    for i in adj:  # for each node i
+        for j, c_ij in adj[i]:  # for each neighbor j of i
+            dist[i, j] = c_ij  # update the distance from i to j
+            nxt[i, j] = j  # update the intermediate node in the shortest path
+    for k in range(n):  # for each intermediate node k
+        for i in range(n):  # for each node i
+            for j in range(n):  # for each node j
+                if dist[i, j] > dist[i, k] + dist[k, j]:  # Relaxation
+                    dist[i, j] = dist[i, k] + dist[k, j]  # update the distance from i to j
+                    nxt[i, j] = nxt[i, k] # update the intermediate node in the shortest path
+    return dist, nxt  # return the shortest distance matrix and the intermediate node matrix
+
+```
+
+<!-- _footer: '' -->
+
+---
+
+```python
+def Floyd_Warshall_path(nxt: np.ndarray, s: int, t: int) -> list:
+    nxt = nxt[:,t]  # get matrix column for target node
+    path = [s]  # reconstruct the shortest path from s to t
+    while path[-1] != t:
+        if nxt[path[-1]] == -1:  # target node is not reachable
+            raise ValueError("Target node is not reachable")
+        path.append(nxt[path[-1]])
+    return path  # return the shortest path from s to t
+```
+
+---
+
+## Fluxo Máximo <br> (*maximum flow*)
+
+Dado um **grafo** com **capacidades** nas arestas e dois vértices especiais, o problema do fluxo máximo consiste em encontrar o **fluxo máximo** que pode ser enviado do vértice de **origem** ao vértice de **destino**, determinando a quantidade de fluxo que passa por cada aresta.
+
+
+![bg right:30% fit drop-shadow 95%](images/max_flow.png)
+
+---
+
+### Algoritmos
+
+O problema do fluxo máximo é um dos problemas mais estudados na teoria dos grafos e possui **diversos algoritmos** para sua resolução.
+
+Os algoritmos mais conhecidos são:  
+
+- **Ford-Fulkerson**.
+  - **Edmonds-Karp**.
+- **Dinic**.
+- **Push-Relabel**.
+
+---
+
+### Algoritmo de Ford-Fulkerson
+
+O algoritmo de Ford-Fulkerson é uma solução **genérica** para o problema do fluxo máximo que utiliza um **caminho aumentante** para aumentar o fluxo.
+
+1. **Inicializa** o fluxo em todas as arestas como zero.
+2. **Enquanto** houver um caminho aumentante:
+   - **Encontra** um caminho aumentante.
+   - **Atualiza** o fluxo das arestas no caminho.
+3. **Retorna** o fluxo máximo.
+
+---
+
+#### Caminho Aumentante
+
+Um caminho aumentante é um caminho do vértice de origem ao vértice de destino que ainda não está *saturado*.
+
+Usamos o algoritmo de **DFS** para encontrar um caminho aumentante.
+
+<br>
+
+> **Saturado:** Quando o fluxo na aresta atinge a capacidade máxima.
+ 
+
+![bg right:50% fit drop-shadow 95%](images/augmenting_path.png)
+
+---
+
+#### Arestas Residuais
+
+- Para que o algoritmo de Ford-Fulkerson funcione, é necessário que o **DFS** seja capaz de atravessar as arestas no **sentido contrário** ao do fluxo para encontrar um caminho aumentante.
+
+- Para isso, acrescentamos **arestas residuais** ao grafo que representam a capacidade de **reverter** o fluxo.
+- Cara aresta $(u,v)$ adicionamos uma aresta $(v,u)$ com **capacidade zero**.
+- Sempre que **aumentamos** o fluxo em uma aresta $(u,v)$, **diminuímos** o fluxo na aresta $(v,u)$, mesmo que resulte em **fluxo negativo**.
+- Uma aresta que tem capacidade zero, mas fluxo negativo, não é considerada *saturada*.
+
+ 
 
 
 ---
@@ -903,5 +1080,12 @@ Para verificar a presença de ciclos negativos, basta **relaxar** todas as arest
 #TODO
 ```
 
+<!-- _footer: '' -->
+
 ---
+
+### Algoritmo de Edmonds-Karp
+
+O algoritmo de Edmonds-Karp é uma **variação** do algoritmo de Ford-Fulkerson que utiliza o **caminho mais curto** para encontrar um caminho aumentante.
+
 
