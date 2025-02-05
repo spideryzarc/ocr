@@ -1079,9 +1079,10 @@ Usamos o algoritmo de **DFS** para encontrar um caminho aumentante.
 ![bg right:75% fit drop-shadow 98%](images/max_flow2.png)
 
 ---
-### Exemplo 2
 
-![bg right:75% fit drop-shadow 98%](images/maxflow.drawio.svg)
+### <!--fit--> Exemplo 2
+
+![bg right:80% fit drop-shadow 97%](images/maxflow.drawio.svg)
 
 ---
 ### Implementação em Python
@@ -1097,5 +1098,29 @@ Usamos o algoritmo de **DFS** para encontrar um caminho aumentante.
 ### Algoritmo de Edmonds-Karp
 
 O algoritmo de Edmonds-Karp é uma **variação** do algoritmo de Ford-Fulkerson que utiliza o **caminho mais curto** para encontrar um caminho aumentante.
+
+1. **Inicializa** o fluxo em todas as arestas como zero.
+2. **Enquanto** houver um caminho aumentante:
+   - **Encontra** o caminho mais curto usando **BFS**.
+   - **Atualiza** o fluxo das arestas no caminho.
+3. **Retorna** o fluxo máximo.
+
+---
+
+#### DFS vs BFS
+
+- DFS significa **Depth-First Search** e é uma busca em profundidade.
+- BFS significa **Breadth-First Search** e é uma busca em largura.
+- O DFS é mais **simples** e **rápido**, mas o BFS encontra o **caminho mais curto**.
+- BFS usa mais memória, mas é mais **eficiente** para encontrar caminhos em **grafos densos**.
+
+---
+
+### Implementação em Python
+
+```python
+#TODO
+```
+
 
 
