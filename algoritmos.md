@@ -1078,6 +1078,10 @@ Usamos o algoritmo de **DFS** para encontrar um caminho aumentante.
 
 ![bg right:75% fit drop-shadow 98%](images/max_flow2.png)
 
+---
+### Exemplo 2
+
+![bg right:75% fit drop-shadow 98%](images/maxflow.drawio.svg)
 
 ---
 ### Implementação em Python
