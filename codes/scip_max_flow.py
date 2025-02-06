@@ -20,14 +20,14 @@ def make_random_instance(n: int = 10, min_degree: int = 2, max_degree: int = 5, 
     D = np.linalg.norm(points[:, np.newaxis, :] - points[np.newaxis, :, :], axis=2)
     np.fill_diagonal(D, np.inf)
     for i in range(n):
-        n_neighbors = random.randint(min_degree, max_degree)
+        n_neighbors = np.random.randint(min_degree, max_degree)
         # Select neighbors based on precomputed distances
         neighbors = np.argsort(D[i])[:max_degree]
         if len(neighbors) > n_neighbors:
             neighbors = np.random.choice(neighbors, n_neighbors, replace=False)
         for j in neighbors:
             if j!=i:
-                edges[i, j] = random.randint(1, max_capacity)
+                edges[i, j] = np.random.randint(1, max_capacity)
     return points, edges
 
 
@@ -98,7 +98,7 @@ def max_flow(n: int, edges: dict, s: int, t: int) -> tuple:
         return 0, {}
     max_flow_value = model.getObjVal()
     flow = {(i, j): model.getVal(x[i, j]) for (i, j) in x}
-    return max_flow_value, flow
+    return round(max_flow_value), flow
 
 
 if __name__ == "__main__":
