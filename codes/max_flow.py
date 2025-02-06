@@ -12,7 +12,7 @@ def Ford_Fulkerson(adj:list, s:int, t:int)->tuple:
     '''
     n = len(adj) # number of nodes
     flow = {(i,j): 0 for i in range(n) for j in adj[i]} # flow values
-    flow.update({(j,i): 0 for i in range(n) for j in adj[i]}) # reverse flow values
+    flow.update({(j,i): 0 for i in range(n) for j in adj[i]}) # add reverse flow values
     graph_expanded = deepcopy(adj) # expanded graph 
     # add reverse edges with zero capacity
     for i,j in flow:
