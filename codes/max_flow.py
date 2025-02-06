@@ -1,65 +1,67 @@
 from scip_max_flow import make_random_instance, plot_flow, max_flow
 import numpy as np
+from copy import deepcopy
 
 
-def Ford_Fulkerson(adj, s, t):  # FIXME: This function is not working properly
+def Ford_Fulkerson(adj:list, s:int, t:int)->tuple:
     '''
-    adj: dict - adjacency map of the graph
+    adj: dict - adjacency map of the graph where adj[i][j] is the capacity of the edge from node i to node j
     s: int - source node
     t: int - target node
-    return: dict - flow values for each edge
+    return: tuple - (flow, value) where flow is a dict of flow values for each edge and value is the maximum flow value
     '''
-    n = len(adj)
-    graph_expanded = [{} for i in range(n)]
-    flow = {}
-    for i in range(n):
-        for j, c in adj[i].items():
-            graph_expanded[i][j] = c  # forward edge
-            # if i != s and j != t:
-            if i not in adj[j]:
-                graph_expanded[j][i] = 0  # artificial reverse edge
-            flow[i, j] = 0
-            flow[j, i] = 0
-
-    def DFS(path):
-        i = path[-1]
-        if i == t:
-            return True  # found a path from s to t
-        neighbors = [ (j,c) for j, c in graph_expanded[i].items() if c > flow[i, j] and j not in path]
-        neighbors.sort(key=lambda x: x[1]-flow[i, x[0]], reverse=True)
-        for j, c_ij in neighbors:
-            if c_ij > flow[i, j] and j not in path:
-                path.append(j)
-                if DFS(path):
-                    return True
-                path.pop()
+    n = len(adj) # number of nodes
+    flow = {(i,j): 0 for i in range(n) for j in adj[i]} # flow values
+    flow.update({(j,i): 0 for i in range(n) for j in adj[i]}) # reverse flow values
+    graph_expanded = deepcopy(adj) # expanded graph 
+    # add reverse edges with zero capacity
+    for i,j in flow:
+        if i!=t and j!=s and j not in adj[i]:
+            graph_expanded[i][j] = 0
+               
+    def DFS(): # Depth First Search )    
+        stack = [s]
+        prev = {s: None}
+        while stack:
+            i = stack.pop() # deepest node
+            if i == t: # target node reached
+                # build path from target to source
+                path = [t] 
+                while prev[path[-1]] is not None:
+                    path.append(prev[path[-1]])
+                return path[::-1] # return path reversed
+            # add not saturated and not visited neighbors to the stack
+            neighbors = [j for j in graph_expanded[i] if graph_expanded[i][j] > flow[i, j] and j not in prev]
+            stack.extend(neighbors) # add neighbors to the stack
+            for j in neighbors:
+                prev[j] = i
         return False
 
-    path = [s]
     value = 0
-    ub = min(sum(adj[s].values()), sum(adj[t].values()))
-    while DFS(path):
+    while True:
+        path = DFS()
+        if not path:
+            break
         # print(path)
         bn = np.inf  # bottleneck
         for i in range(len(path)-1):
             bn = min(bn, graph_expanded[path[i]][path[i+1]] - flow[path[i], path[i+1]])
+        # update flow values
         for i in range(len(path)-1):
-            flow[path[i], path[i+1]] += bn
-            flow[path[i+1], path[i]] -= bn
-        value += bn
-        print(f"Value: {value} UB: {ub}")
-        if value == ub:
-            break
-        path = [s]
+            flow[path[i], path[i+1]] += bn # forward flow
+            flow[path[i+1], path[i]] -= bn # reverse flow
+        value += bn # update total flow value
+        print(f"Value: {value}")
+
     # remove edges with zero or negative flow
     flow = {k: v for k, v in flow.items() if v > 0}
     return flow, value
 
 
 if __name__ == '__main__':
-    n = 50
-    np.random.seed(9)
-    points, edges = make_random_instance(n=n, min_degree=2, max_degree=5, max_capacity=100)
+    n = 200
+    np.random.seed(0)
+    points, edges = make_random_instance(n=n, min_degree=3, max_degree=5, max_capacity=100)
     # Choose source and target nodes as the ones with minimum and maximum sum of coordinates
     s = min(range(n), key=lambda i: points[i, 0]+points[i, 1])
     t = max(range(n), key=lambda i: points[i, 0]+points[i, 1])
