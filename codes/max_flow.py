@@ -20,8 +20,8 @@ def Ford_Fulkerson(adj:list, s:int, t:int)->tuple:
             graph_expanded[i][j] = 0
                
     def DFS(): # Depth First Search )    
-        stack = [s]
-        prev = {s: None}
+        stack = [s] # stack of nodes to visit
+        prev = {s: None} # previous node for each node, also used as visited set
         while stack:
             i = stack.pop() # deepest node
             if i == t: # target node reached
