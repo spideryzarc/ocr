@@ -1061,30 +1061,51 @@ Usamos o algoritmo de **DFS** para encontrar um caminho aumentante.
 
 ---
 
-#### Arestas Residuais
+#### Grafo residual
 
-- Para que o algoritmo de Ford-Fulkerson funcione, é necessário que o **DFS** seja capaz de atravessar as arestas no **sentido contrário** ao do fluxo para encontrar um caminho aumentante.
+Se aplicarmos o algoritmo diretamente no grafo de entrada, podemos não encontra a solução ótima.
 
-- Para isso, acrescentamos **arestas residuais** ao grafo que representam a capacidade de **reverter** o fluxo.
-- Cara aresta $(u,v)$ adicionamos uma aresta $(v,u)$ com **capacidade zero**.
-- Sempre que **aumentamos** o fluxo em uma aresta $(u,v)$, **diminuímos** o fluxo na aresta $(v,u)$, mesmo que resulte em **fluxo negativo**.
-- Uma aresta que tem capacidade zero, mas fluxo negativo, não é considerada *saturada*.
+![bg right:65% fit drop-shadow 97%](images/maxflow.drawio.svg)
 
+---
+
+Observe que não há mais caminhos aumentantes no grafo original, mas ainda não atingimos o fluxo máximo.
+
+![bg right:65% fit drop-shadow 97%](images/maxflow2.drawio.svg)
+
+
+> Se pudessemos nos *arrepender* do fluxo `2->5` ...
+---
+
+Para que o algoritmo de Ford-Fulkerson funcione, é necessário que sejamos capazes de nos *arrepender* de um fluxo que já foi enviado.
+
+Isso foi conseguido, de forma muito elegante, através do **grafo residual**.
+
+
+---
+
+#### Grafo Residual
+
+- Para cada aresta $(u,v)$ no grafo original, o grafo residual possui duas arestas:
+  - Uma aresta $(u,v)$ com capacidade igual à **capacidade original**,
+  - Se não há $(v,u)$ no grafo original, uma aresta $(v,u)$ com capacidade igual a **zero** se $u \neq s$ e $v \neq t$.
+- Quando enviamos um fluxo de $u$ para $v$,
+  -  **somamos** o fluxo na aresta $(u,v)$,
+  -  **subtraímos** o fluxo na aresta $(v,u)$, mesmo resultando em um valor negativo.
+- e.g. se a capacidade de $(v,u)$ é 0 e o fluxo resultante é -5, então $(u,v)$ não está saturada, pois $0 - (-5) = 5$.
+- Quando atribuímos um fluxo a uma resta inversa, estamos nos *arrependendo* do fluxo enviado anteriormente.
+
+---
+
+#### <!--fit--> Grafo Residual
+
+![bg right:75% fit drop-shadow 97%](images/maxflow_residual.drawio.svg)
  
 
 
----
-### Exemplo
-
-![bg right:75% fit drop-shadow 98%](images/max_flow2.png)
 
 ---
 
-### <!--fit--> Exemplo 2
-
-![bg right:80% fit drop-shadow 97%](images/maxflow.drawio.svg)
-
----
 ### Implementação em Python
 
 ```python

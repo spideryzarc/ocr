@@ -105,6 +105,7 @@ def Floyd_Warshall_path(nxt: np.ndarray, s: int, t: int) -> list:
 if __name__ == "__main__":
     # Generate random instance
     n = 200
+    np.random.seed(0)
     # np.random.seed(0)
     points, edges = make_random_instance(n=n, min_degree=4, max_degree=7)
 

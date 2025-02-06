@@ -26,7 +26,8 @@ def make_random_instance(n: int = 10, min_degree: int = 2, max_degree: int = 5, 
         if len(neighbors) > n_neighbors:
             neighbors = np.random.choice(neighbors, n_neighbors, replace=False)
         for j in neighbors:
-            edges[i, j] = random.randint(1, max_capacity)
+            if j!=i:
+                edges[i, j] = random.randint(1, max_capacity)
     return points, edges
 
 
