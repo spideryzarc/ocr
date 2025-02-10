@@ -1029,7 +1029,6 @@ Os algoritmos mais conhecidos são:
 
 - **Ford-Fulkerson**.
   - **Edmonds-Karp**.
-- **Dinic**.
 - **Push-Relabel**.
 
 ---
@@ -1143,5 +1142,39 @@ O algoritmo de Edmonds-Karp é uma **variação** do algoritmo de Ford-Fulkerson
 #TODO
 ```
 
+---
 
+### Algoritmo de Push-Relabel
 
+O algoritmo de Push-Relabel é uma solução **eficiente** para o problema do fluxo máximo que utiliza a **pré-fluxo** para aumentar o fluxo.
+
+1. **Inicializa** o pré-fluxo e a altura dos vértices.
+2. **Empurrar** o fluxo da origem para seus vizinhos e adicioná-los à fila de ***overflow***.
+3. **Enquanto** houver um vértice com ***overflow***:
+   - **Empurra** o fluxo para um vértice mais baixo.
+   - **Rebaixa** o vértice se necessário.
+4. **Retorna** o pré-fluxo do vértice de destino.
+
+---
+
+#### Pré-Fluxo (excesso de fluxo)
+
+- Para cada vértice, exceto o de origem, definimos o **pré-fluxo** como a **diferença** entre o fluxo que **entra** e o fluxo que **sai**.
+- Inicializamos o pré-fluxo do vértice de origem como a **soma** dos fluxos que **saem** dele.
+- Os demais vértices começam com pré-fluxo **zero**.
+
+---
+
+#### altura dos vértices
+
+- Definimos a **altura** de um vértice `u` como 
+$$ \min \left( \text{altura}[v] + 1 \mid (u,v) \text{ não saturado} \right) $$
+
+- Inicialmente, a altura do vértice de origem é `n` e dos demais vértices é `0`.
+- A altura de um vértice é **atualizada** quando ele **empurra** o fluxo para um vértice mais baixo.
+
+---
+
+### <!--fit--> Exemplo
+
+![bg right:70% fit drop-shadow 95%](images/maxflow.drawio.svg)
