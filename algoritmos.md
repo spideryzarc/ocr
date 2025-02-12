@@ -1074,6 +1074,7 @@ Observe que não há mais caminhos aumentantes no grafo original, mas ainda não
 
 
 > Se pudessemos nos *arrepender* do fluxo `2->5` ...
+
 ---
 
 Para que o algoritmo de Ford-Fulkerson funcione, é necessário que sejamos capazes de nos *arrepender* de um fluxo que já foi enviado.
@@ -1092,7 +1093,9 @@ Isso foi conseguido, de forma muito elegante, através do **grafo residual**.
   -  **somamos** o fluxo na aresta $(u,v)$,
   -  **subtraímos** o fluxo na aresta $(v,u)$, mesmo resultando em um valor negativo.
 - e.g. se a capacidade de $(v,u)$ é 0 e o fluxo resultante é -5, então $(u,v)$ não está saturada, pois $0 - (-5) = 5$.
-- Quando atribuímos um fluxo a uma resta inversa, estamos nos *arrependendo* do fluxo enviado anteriormente.
+- Sem saber, o DFS consegue se *arrepender* de um fluxo que já foi enviado por $(u,v)$, atravessando a aresta $(v,u)$ no grafo residual.
+
+<!-- _footer: '' -->
 
 ---
 
@@ -1148,12 +1151,12 @@ O algoritmo de Edmonds-Karp é uma **variação** do algoritmo de Ford-Fulkerson
 
 O algoritmo de Push-Relabel é uma solução **eficiente** para o problema do fluxo máximo que utiliza a **pré-fluxo** para aumentar o fluxo.
 
-1. **Inicializa** o pré-fluxo e a altura dos vértices.
-2. **Empurrar** o fluxo da origem para seus vizinhos e adicioná-los à fila de ***overflow***.
-3. **Enquanto** houver um vértice com ***overflow***:
-   - **Empurra** o fluxo para um vértice mais baixo.
-   - **Rebaixa** o vértice se necessário.
-4. **Retorna** o pré-fluxo do vértice de destino.
+1. **Inicializa** o label e o excesso de fluxo de cada vértice diferente de $s$ como zero. O vértice de origem tem excesso igual à soma das capacidades das arestas que saem dele e o label igual ao número de vértices.
+2. **Enquanto** houver vértices com excesso de fluxo:
+   - **Escolhe** um vértice com excesso de fluxo.
+   - **Empurra** o fluxo para um vértice adjacente com label menor, respeitando a capacidade residual da aresta.
+   - **Atualiza** o label do vértice se ainda houver excesso de fluxo após o empurrar.
+3. **Retorna** o fluxo máximo.
 
 ---
 
@@ -1165,16 +1168,31 @@ O algoritmo de Push-Relabel é uma solução **eficiente** para o problema do fl
 
 ---
 
-#### altura dos vértices
+#### Altura dos vértices (*labels*)
 
 - Definimos a **altura** de um vértice `u` como 
 $$ \min \left( \text{altura}[v] + 1 \mid (u,v) \text{ não saturado} \right) $$
 
 - Inicialmente, a altura do vértice de origem é `n` e dos demais vértices é `0`.
-- A altura de um vértice é **atualizada** quando ele **empurra** o fluxo para um vértice mais baixo.
+- A altura de um vértice é **atualizada** quando ele apresenta excesso de fluxo mesmo após o empurrar.
+
+> Ao contrário do algoritmo de Ford-Fulkerson, o algoritmo de Push-Relabel precisa das arestas de **retorno** para $s$ no grafo residual.
 
 ---
 
 ### <!--fit--> Exemplo
 
-![bg right:70% fit drop-shadow 95%](images/maxflow.drawio.svg)
+![bg right:70% fit drop-shadow 95%](images/maxflow_residual_relabel.drawio.svg)
+
+---
+
+### Implementação em Python
+
+```python
+#TODO
+```
+
+<!-- _footer: '' -->
+
+---
+
