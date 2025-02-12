@@ -130,11 +130,63 @@ def Edmonds_Karp(adj: list, s: int, t: int) -> tuple:
     return flow, max_flow
 
 
+def push_relabel(adj: list, s: int, t: int) -> tuple:
+    '''
+    adj: dict - adjacency map of the graph where adj[i][j] is the capacity of the edge from node i to node j
+    s: int - source node
+    t: int - target node
+    return: tuple - (flow, value) where flow is a dict of flow values for each edge and value is the maximum flow value
+    '''
+    n = len(adj)  # number of nodes
+    flow = {(i, j): 0 for i in range(n) for j in adj[i]}  # flow values
+    flow.update({(j, i): 0 for i in range(n)
+                for j in adj[i]})  # add reverse flow values
+    graph_expanded = deepcopy(adj)  # expanded graph
+    # add reverse edges with zero capacity
+    for i, j in flow:
+        if i != t and j not in adj[i]:
+            graph_expanded[i][j] = 0
+
+    excess = [0]*n  # preflow values
+    excess[s] = sum(graph_expanded[s].values())  # source node has excess flow
+    labels = [0]*n  # labels for each node
+    labels[s] = n  # source node has highest label
+
+    queue = collections.deque([s])  # queue of nodes to visit
+    while queue:
+        i = queue.popleft()  # oldest node
+        if excess[i] == 0:
+            continue
+        for j in graph_expanded[i]:
+            if labels[i] > labels[j] and graph_expanded[i][j] > flow[i, j]:
+                df = min(excess[i], graph_expanded[i][j] - flow[i, j])
+                flow[i, j] += df
+                flow[j, i] -= df
+                excess[j] += df
+                excess[i] -= df
+                if j != s and j != t:
+                    queue.append(j)
+                    # labels[j] = min(labels[k] for k in graph_expanded[j]
+                    #                 if graph_expanded[j][k] > flow[j, k]) + 1
+                if excess[i] == 0:
+                    break
+        else:  # excess[i] > 0
+            if i == s:
+                continue
+            # labels[i] = min(labels[j] for j in graph_expanded[i]
+            #                 if graph_expanded[i][j] > flow[i, j]) + 1
+            labels[i] += 1
+            queue.append(i)
+    # remove edges with zero or negative flow
+    flow = {k: v for k, v in flow.items() if v > 0}
+    return flow, sum(flow[i, t] for i in range(n) if (i, t) in flow)
+
+
 if __name__ == '__main__':
-    n = 2000
-    np.random.seed(0)
+    n = 1000
+    np.random.seed(1)
     points, edges = make_random_instance(
-        n=n, min_degree=15, max_degree=200, max_capacity=100)
+        n=n, min_degree=15, max_degree=100, max_capacity=1000)
     # Choose source and target nodes as the ones with minimum and maximum sum of coordinates
     s = min(range(n), key=lambda i: points[i, 0]+points[i, 1])
     t = max(range(n), key=lambda i: points[i, 0]+points[i, 1])
@@ -152,9 +204,16 @@ if __name__ == '__main__':
     print(f"Source node: {s}, Target node: {t}")
     t0 = time()
     flow, value = Ford_Fulkerson(adj, s, t)
-    print(f"Ford-Fulkerson algorithm took {time()-t0:.2f} seconds")
+    print(
+        f"Ford-Fulkerson algorithm took {time()-t0:.2f} seconds - Value: {value}")
     t0 = time()
     flow, value = Edmonds_Karp(adj, s, t)
-    print(f"Edmonds-Karp algorithm took {time()-t0:.2f} seconds")
+    print(
+        f"Edmonds-Karp algorithm took {time()-t0:.2f} seconds - Value: {value}")
+    t0 = time()
+    flow, value = push_relabel(adj, s, t)
+    print(
+        f"Push-Relabel algorithm took {time()-t0:.2f} seconds - Value: {value}")
+
     # print(f"Max flow from node {s} to node {t}: {value}")
     # plot_flow(points, edges, flow)
