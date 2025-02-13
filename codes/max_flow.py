@@ -145,7 +145,7 @@ def push_relabel(adj: list[dict[int, int]], s: int, t: int) -> tuple[dict[tuple[
 
     queue = deque([s], n)  # queue of nodes to visit
     while queue:
-        i = queue.popleft()  # oldest node
+        i = queue.popleft()  # node to visit
         if excess[i] == 0:
             continue
         for j in capacity[i]:
@@ -170,10 +170,10 @@ def push_relabel(adj: list[dict[int, int]], s: int, t: int) -> tuple[dict[tuple[
 
 
 if __name__ == '__main__':
-    n = 200
+    n = 500
     np.random.seed(1)
     points, edges = make_random_instance(
-        n=n, min_degree=5, max_degree=90, max_capacity=10000)
+        n=n, min_degree=5, max_degree=400, max_capacity=1000)
     # Choose source and target nodes as the ones with minimum and maximum sum of coordinates
     s = min(range(n), key=lambda i: points[i, 0]+points[i, 1])
     t = max(range(n), key=lambda i: points[i, 0]+points[i, 1])

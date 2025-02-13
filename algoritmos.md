@@ -1088,7 +1088,7 @@ Isso foi conseguido, de forma muito elegante, através do **grafo residual**.
 
 - Para cada aresta $(u,v)$ no grafo original, o grafo residual possui duas arestas:
   - Uma aresta $(u,v)$ com capacidade igual à **capacidade original**,
-  - Se não há $(v,u)$ no grafo original, uma aresta $(v,u)$ com capacidade igual a **zero** se $u \neq s$ e $v \neq t$.
+  - Se **não houver** $(v,u)$ no grafo original, uma aresta $(v,u)$ com capacidade igual a **zero** se $u \neq s$ e $v \neq t$.
 - Quando enviamos um fluxo de $u$ para $v$,
   -  **somamos** o fluxo na aresta $(u,v)$,
   -  **subtraímos** o fluxo na aresta $(v,u)$, mesmo resultando em um valor negativo.
@@ -1111,10 +1111,84 @@ Isso foi conseguido, de forma muito elegante, através do **grafo residual**.
 ### Implementação em Python
 
 ```python
-#TODO
+def Ford_Fulkerson(adj: list, s: int, t: int) -> tuple:
+    n = len(adj)  # number of nodes
+    capacity, flow = residual_graph_n_flow(adj)  # expanded graph and flow values
+    MAX = max(capacity[s].values())  # big number
+    max_flow = 0 # total flow value
+    while True:
+        path = DFS(capacity, flow, s, t)  # find an augmenting path
+        if not path: break # no more augmenting paths        
+        bn = MAX  # bottleneck
+        for i in range(len(path)-1):
+            bn = min(bn, capacity[path[i]][path[i+1]] - flow[path[i], path[i+1]])
+        # update flow values for the augmenting path
+        for i in range(len(path)-1):
+            flow[path[i], path[i+1]] += bn  # forward flow
+            flow[path[i+1], path[i]] -= bn  # reverse flow
+        max_flow += bn  # update total flow value
+    # return the flow values and the maximum flow
+    flow = {k: v for k, v in flow.items() if v > 0} # remove zero flows
+    return flow, max_flow
 ```
 
 <!-- _footer: '' -->
+
+---
+
+#### Implementação de Funções Auxiliares
+
+##### Grafo Residual
+
+Esta função cria o grafo residual a partir do grafo original, bem como o dicionário de fluxo.
+
+Será utilizado pelos algoritmos de Ford-Fulkerson, Edmonds-Karp e Push-Relabel.
+
+```python
+def residual_graph_n_flow(graph):
+    n = len(graph)  # number of nodes
+    flow = {(i, j): 0 for i in range(n) for j in graph[i]}  # flow values
+    flow.update({(j, i): 0 for i in range(n) for j in graph[i]})  # add reverse flow values
+    residual_graph = deepcopy(graph)  # copy the graph
+    # add reverse edges with zero capacity
+    for i, j in flow:
+        if i != t and j not in graph[i]:
+            residual_graph[i][j] = 0
+    return residual_graph, flow
+```
+
+
+
+
+---
+
+##### DFS
+
+Encontra um caminho aumentante no grafo residual.
+
+```python
+def DFS(capacity: dict, flow: dict, s: int, t: int) -> list:
+    stack = [s]  # stack of nodes to visit
+    prev = [-1]*n # previous node in the path, -1 means not visited
+    while stack:
+        if prev[t] != -1:  # target node reached
+            # reconstruct the path from target to source
+            path = [t]
+            while prev[path[-1]] != -1:
+                path.append(prev[path[-1]])
+            return path[::-1]  # return path reversed
+        i = stack.pop()  # deepest node
+        # add not saturated and not visited neighbors to the stack
+        neighbors = [j for j in capacity[i] 
+                            if j != s and capacity[i][j] > flow[i, j] and prev[j] == -1]
+        stack.extend(neighbors)  # add all neighbors to the stack
+        for j in neighbors:  # update the previous node
+            prev[j] = i
+    return [] # no path found
+```
+
+<!-- _footer: '' -->
+
 
 ---
 
@@ -1142,14 +1216,66 @@ O algoritmo de Edmonds-Karp é uma **variação** do algoritmo de Ford-Fulkerson
 ### Implementação em Python
 
 ```python
-#TODO
+def Edmonds_Karp(adj: list, s: int, t: int) -> tuple:
+    n = len(adj)  # number of nodes
+    capacity, flow = residual_graph_n_flow(adj)  # expanded graph and flow values
+    MAX = max(capacity[s].values())  # big number
+    max_flow = 0 # total flow value
+    while True:
+        path = BFS(capacity, flow, s, t)  # find an augmenting path
+        if not path: break # no more augmenting paths        
+        bn = MAX  # bottleneck
+        for i in range(len(path)-1):
+            bn = min(bn, capacity[path[i]][path[i+1]] - flow[path[i], path[i+1]])
+        # update flow values for the augmenting path
+        for i in range(len(path)-1):
+            flow[path[i], path[i+1]] += bn  # forward flow
+            flow[path[i+1], path[i]] -= bn  # reverse flow
+        max_flow += bn  # update total flow value
+    # return the flow values and the maximum flow
+    flow = {k: v for k, v in flow.items() if v > 0} # remove zero flows
+    return flow, max_flow
 ```
+
+<!-- _footer: '' -->
 
 ---
 
+#### BFS
+
+
+```python
+from collections import deque
+def BFS(capacity: dict, flow: dict, s: int, t: int) -> list:
+    queue = deque([s])  # queue of nodes to visit
+    prev = [-1]*len(capacity) # previous node in the path, -1 means not visited
+    while queue: # while there are nodes to visit
+        if prev[t] != -1:  # target node reached
+            # reconstruct the path from target to source
+            path = [t]
+            while prev[path[-1]] != -1:
+                path.append(prev[path[-1]])
+            return path[::-1]  # return path reversed
+        i = queue.popleft()  # shallowest node
+        # add not saturated and not visited neighbors to the stack
+        neighbors = [j for j in capacity[i]
+                        if j != s and capacity[i][j] > flow[i, j] and prev[j] == -1]
+        # sort by residual capacity (speedup)
+        neighbors.sort(key=lambda j: capacity[i][j] - flow[i, j], reverse=True)  
+        queue.extend(neighbors)  # add all neighbors to the stack
+        for j in neighbors: # update the previous node
+            prev[j] = i
+    return [] # no path found
+```
+
+<!-- _footer: '' -->
+
+---
+
+
 ### Algoritmo de Push-Relabel
 
-O algoritmo de Push-Relabel é uma solução **eficiente** para o problema do fluxo máximo que utiliza a **pré-fluxo** para aumentar o fluxo.
+O algoritmo de Push-Relabel é uma solução **eficiente** para o problema do fluxo máximo que utiliza a **altura** dos vértices para **empurrar** o fluxo.
 
 1. **Inicializa** o label e o excesso de fluxo de cada vértice diferente de $s$ como zero. O vértice de origem tem excesso igual à soma das capacidades das arestas que saem dele e o label igual ao número de vértices.
 2. **Enquanto** houver vértices com excesso de fluxo:
@@ -1189,7 +1315,35 @@ $$ \min \left( \text{altura}[v] + 1 \mid (u,v) \text{ não saturado} \right) $$
 ### Implementação em Python
 
 ```python
-#TODO
+def push_relabel(adj: list, s: int, t: int) -> tuple:
+    n = len(adj)  # number of nodes
+    capacity, flow = residual_graph_n_flow(adj)  # expanded graph and flow values
+    excess = [0]*n  # pre-flow values
+    excess[s] = sum(capacity[s].values())  # source node has excess flow
+    labels = [0]*n  # labels for each node (height)
+    labels[s] = n  # source node has highest label
+    queue = deque([s], n)  # queue of nodes to visit
+    while queue:
+        i = queue.popleft()  # node to visit
+        if excess[i] == 0: continue # skip nodes with no excess flow
+        # push flow to neighbors with lower label
+        for j in capacity[i]:
+            if labels[i] > labels[j] and capacity[i][j] > flow[i, j]:
+                df = min(excess[i], capacity[i][j] - flow[i, j])
+                flow[i, j] += df
+                flow[j, i] -= df
+                excess[j] += df
+                excess[i] -= df
+                if j != s and j != t and excess[j] == df:
+                    queue.append(j)
+                if excess[i] == 0: break # no more excess flow in i 
+        # relabel node i if it has excess flow
+        if excess[i] > 0 and i != s:  
+            labels[i] += 1
+            queue.append(i)
+    # remove edges with zero or negative flow
+    flow = {k: v for k, v in flow.items() if v > 0}
+    return flow, sum(flow[i, t] for i in range(n) if (i, t) in flow)
 ```
 
 <!-- _footer: '' -->
