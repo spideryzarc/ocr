@@ -2,28 +2,27 @@ from scip_max_flow import make_random_instance, plot_flow, max_flow
 import numpy as np
 from copy import deepcopy
 from time import time
-# linked list
-import collections
+from collections import deque
 
 
-def residual_graph_n_flow(graph: list) -> tuple:
+
+def residual_graph_n_flow(graph: list[dict[int, int]]) -> tuple[list[dict[int, int]], dict[tuple[int, int], int]]:
     '''
     graph: list - adjacency map of the graph where adj[i][j] is the capacity of the edge from node i to node j
     return: tuple - (residual_graph, flow) where residual_graph is the adjacency map of the residual graph and flow is a dict of flow values for each edge 
     '''
-    n = len(adj)  # number of nodes
-    flow = {(i, j): 0 for i in range(n) for j in adj[i]}  # flow values
-    flow.update({(j, i): 0 for i in range(n)
-                for j in adj[i]})  # add reverse flow values
-    residual_graph = deepcopy(adj)  # expanded graph
+    n = len(graph)  # number of nodes
+    flow = {(i, j): 0 for i in range(n) for j in graph[i]}  # flow values
+    flow.update({(j, i): 0 for i in range(n) for j in graph[i]})  # add reverse flow values
+    residual_graph = deepcopy(graph)  # expanded graph
     # add reverse edges with zero capacity
     for i, j in flow:
-        if i != t and j not in adj[i]:
+        if i != t and j not in graph[i]:
             residual_graph[i][j] = 0
     return residual_graph, flow
 
 
-def Ford_Fulkerson(adj: list, s: int, t: int) -> tuple:
+def Ford_Fulkerson(adj: list[dict[int, int]], s: int, t: int) -> tuple[dict[tuple[int, int], int], int]:
     '''
     adj: dict - adjacency map of the graph where adj[i][j] is the capacity of the edge from node i to node j
     s: int - source node
@@ -31,34 +30,35 @@ def Ford_Fulkerson(adj: list, s: int, t: int) -> tuple:
     return: tuple - (flow, value) where flow is a dict of flow values for each edge and value is the maximum flow value
     '''
     n = len(adj)  # number of nodes
-    capacity, flow = residual_graph_n_flow(adj) # expanded graph and flow values
+    capacity, flow = residual_graph_n_flow(adj)  # expanded graph and flow values
 
     def DFS():  # Depth First Search )
         stack = [s]  # stack of nodes to visit
         # previous node for each node, also used as visited set
-        prev = [None]*n
+        prev = [-1]*n
         while stack:
-            if prev[t] is not None: # build path from target to source
+            if prev[t] != -1:  # target node reached
                 path = [t]
-                while prev[path[-1]] is not None:
+                while prev[path[-1]] != -1:
                     path.append(prev[path[-1]])
                 return path[::-1]  # return path reversed
             i = stack.pop()  # deepest node
             # add not saturated and not visited neighbors to the stack
             neighbors = [j for j in capacity[i]
-                         if j != s and capacity[i][j] > flow[i, j] and prev[j] is None]
+                         if j != s and capacity[i][j] > flow[i, j] and prev[j] == -1]
             stack.extend(neighbors)  # add all neighbors to the stack
             for j in neighbors:
                 prev[j] = i
         return False
 
     max_flow = 0
+    MAX = max(capacity[s].values())  # maximum flow value
     while True:
         path = DFS()
         if not path:
             break
         # print(path)
-        bn = np.inf  # bottleneck
+        bn = MAX  # bottleneck
         for i in range(len(path)-1):
             bn = min(bn, capacity[path[i]][path[i+1]]
                      - flow[path[i], path[i+1]])
@@ -74,7 +74,7 @@ def Ford_Fulkerson(adj: list, s: int, t: int) -> tuple:
     return flow, max_flow
 
 
-def Edmonds_Karp(adj: list, s: int, t: int) -> tuple:
+def Edmonds_Karp(adj: list[dict[int, int]], s: int, t: int) -> tuple[dict[tuple[int, int], int], int]:
     '''
     adj: dict - adjacency map of the graph where adj[i][j] is the capacity of the edge from node i to node j
     s: int - source node
@@ -82,35 +82,36 @@ def Edmonds_Karp(adj: list, s: int, t: int) -> tuple:
     return: tuple - (flow, value) where flow is a dict of flow values for each edge and value is the maximum flow value
     '''
     n = len(adj)  # number of nodes
-    capacity, flow = residual_graph_n_flow(adj) # expanded graph and flow values
+    capacity, flow = residual_graph_n_flow(adj)  # expanded graph and flow values
 
     def BFS():  # Breadth First Search
-        queue = collections.deque([s])  # queue of nodes to visit
+        queue = deque([s])  # queue of nodes to visit
         # previous node for each node, also used as visited set
-        prev = [None]*n
+        prev = [-1]*n
         while queue:
-            if prev[t] is not None:  # target node reached
+            if prev[t] != -1:  # target node reached
                 path = [t]
-                while prev[path[-1]] is not None:
+                while prev[path[-1]] != -1:
                     path.append(prev[path[-1]])
                 return path[::-1]  # return path reversed
             i = queue.popleft()  # shallowest node
             # add not saturated and not visited neighbors to the stack
             neighbors = [j for j in capacity[i]
-                         if j != s and capacity[i][j] > flow[i, j] and prev[j] is None]
-            neighbors.sort(key=lambda j: capacity[i][j] - flow[i, j], reverse=True) # sort by residual capacity (speedup)
+                         if j != s and capacity[i][j] > flow[i, j] and prev[j] == -1]
+            neighbors.sort(key=lambda j: capacity[i][j] - flow[i, j], reverse=True)  # sort by residual capacity (speedup)
             queue.extend(neighbors)  # add all neighbors to the stack
             for j in neighbors:
                 prev[j] = i
         return False
 
     max_flow = 0
+    MAX = max(capacity[s].values())  # maximum flow value
     while True:
         path = BFS()
         if not path:
             break
         # print(path)
-        bn = np.inf  # bottleneck
+        bn = MAX  # bottleneck
         for i in range(len(path)-1):
             bn = min(bn, capacity[path[i]][path[i+1]]
                      - flow[path[i], path[i+1]])
@@ -126,7 +127,8 @@ def Edmonds_Karp(adj: list, s: int, t: int) -> tuple:
     return flow, max_flow
 
 
-def push_relabel(adj: list, s: int, t: int) -> tuple:
+
+def push_relabel(adj: list[dict[int, int]], s: int, t: int) -> tuple[dict[tuple[int, int], int], int]:
     '''
     adj: dict - adjacency map of the graph where adj[i][j] is the capacity of the edge from node i to node j
     s: int - source node
@@ -134,14 +136,14 @@ def push_relabel(adj: list, s: int, t: int) -> tuple:
     return: tuple - (flow, value) where flow is a dict of flow values for each edge and value is the maximum flow value
     '''
     n = len(adj)  # number of nodes
-    capacity, flow = residual_graph_n_flow(adj) # expanded graph and flow values
+    capacity, flow = residual_graph_n_flow(adj)  # expanded graph and flow values
 
     excess = [0]*n  # pre-flow values
     excess[s] = sum(capacity[s].values())  # source node has excess flow
     labels = [0]*n  # labels for each node (height)
     labels[s] = n  # source node has highest label
 
-    queue = collections.deque([s], n)  # queue of nodes to visit
+    queue = deque([s], n)  # queue of nodes to visit
     while queue:
         i = queue.popleft()  # oldest node
         if excess[i] == 0:
