@@ -417,9 +417,9 @@ Assim como o *bin packing*, o problema de cobertura de conjuntos é **NP-difíci
 
 ## Algoritmo Guloso (*Greedy*)
 
-- Constroi uma solução iterativamente, tmando uma escolha a cada passo que parece ser a melhor no momento.
+- Constrói uma solução iterativamente, tomando uma escolha a cada passo que parece ser a melhor no momento.
 - Uma vez tomada uma decisão, ela não será mais alterada (*straigthforward*).
-- As decições são baseadas em um critério heurístico.
+- As decisões são baseadas em um critério heurístico.
   - **Set Cover:** Escolhe o subconjunto que cobre o maior número de elementos ainda não cobertos.
   - Se o problema for ponderado, escolhe o subconjunto com o menor custo dividido pelo número de elementos não cobertos.
 
@@ -1275,13 +1275,13 @@ def BFS(capacity: dict, flow: dict, s: int, t: int) -> list:
 
 ### Algoritmo de Push-Relabel
 
-O algoritmo de Push-Relabel é uma solução **eficiente** para o problema do fluxo máximo que utiliza a **altura** dos vértices para **empurrar** o fluxo.
+O algoritmo de Push-Relabel é uma solução **alternativa** para o problema do fluxo máximo que utiliza a **altura** dos vértices para **empurrar** o fluxo.
 
-1. **Inicializa** o label e o excesso de fluxo de cada vértice diferente de $s$ como zero. O vértice de origem tem excesso igual à soma das capacidades das arestas que saem dele e o label igual ao número de vértices.
-2. **Enquanto** houver vértices com excesso de fluxo:
-   - **Escolhe** um vértice com excesso de fluxo.
-   - **Empurra** o fluxo para um vértice adjacente com label menor, respeitando a capacidade residual da aresta.
-   - **Atualiza** o label do vértice se ainda houver excesso de fluxo após o empurrar.
+1. **Inicializa** o *label* e o *excesso* de fluxo de cada vértice (detalhes a seguir).
+2. **Enquanto** houver vértices com *excesso* de fluxo:
+   - **Escolhe** um vértice com *excesso* de fluxo.
+   - **Empurra** o fluxo para um vértice adjacente com *label* menor, respeitando a **capacidade residual** da aresta.
+   - **Atualiza** o label do vértice se ainda haja *excesso* de fluxo após o *empurrar*.
 3. **Retorna** o fluxo máximo.
 
 ---
@@ -1289,7 +1289,7 @@ O algoritmo de Push-Relabel é uma solução **eficiente** para o problema do fl
 #### Pré-Fluxo (excesso de fluxo)
 
 - Para cada vértice, exceto o de origem, definimos o **pré-fluxo** como a **diferença** entre o fluxo que **entra** e o fluxo que **sai**.
-- Inicializamos o pré-fluxo do vértice de origem como a **soma** dos fluxos que **saem** dele.
+- Inicializamos o pré-fluxo do vértice de origem como a **soma** das capacidades das arestas que saem dele.
 - Os demais vértices começam com pré-fluxo **zero**.
 
 ---
@@ -1299,10 +1299,12 @@ O algoritmo de Push-Relabel é uma solução **eficiente** para o problema do fl
 - Definimos a **altura** de um vértice `u` como 
 $$ \min \left( \text{altura}[v] + 1 \mid (u,v) \text{ não saturado} \right) $$
 
-- Inicialmente, a altura do vértice de origem é `n` e dos demais vértices é `0`.
-- A altura de um vértice é **atualizada** quando ele apresenta excesso de fluxo mesmo após o empurrar.
+- **Inicialmente**, a altura do vértice de origem é `n` e dos demais vértices é `0`.
+- A altura de um vértice é **atualizada** quando ele apresenta *excesso* de fluxo mesmo após o *empurrar*.
 
-> Ao contrário do algoritmo de Ford-Fulkerson, o algoritmo de Push-Relabel precisa das arestas de **retorno** para $s$ no grafo residual.
+<br>
+
+> Ao contrário do algoritmo de Ford-Fulkerson, o algoritmo de Push-Relabel precisa das arestas de **retorno** para $s$ no grafo residual para *devolver* o fluxo empurrado na primeira iteração.
 
 ---
 
@@ -1349,4 +1351,10 @@ def push_relabel(adj: list, s: int, t: int) -> tuple:
 <!-- _footer: '' -->
 
 ---
+
+### Conclusão
+
+- Estudamos alguns dos problemas mais comuns na teoria dos grafos e suas soluções mais eficientes.
+- As abordagens utilizam **várias técnicas**, como busca em profundidade, busca em largura, programação dinâmica,algoritmos gulosos e meta-heurísticas.
+- A **implementação** eficiente desses algoritmos é um **desafio** que requer conhecimento avançado de **estruturas de dados** e **algoritmos**.
 
