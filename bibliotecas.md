@@ -47,12 +47,12 @@ No entanto, há outras bibliotecas que podem ser úteis dependendo do problema a
 pip install networkx
 ```
 
----
 
 ## Exemplo
 
 ```python
 import networkx as nx
+import matplotlib.pyplot as plt
 
 G = nx.Graph()
 G.add_edge(1, 2)
@@ -60,6 +60,7 @@ G.add_edge(2, 3)
 G.add_edge(3, 1)
 
 nx.draw(G, with_labels=True)
+plt.show()
 ```
 
 ---
@@ -68,30 +69,111 @@ nx.draw(G, with_labels=True)
 
 - **Grafo não direcionado** (`Graph`)
 - **Grafo direcionado** (`DiGraph`)
-- **Grafo ponderado** (atributo `weight` nas arestas)
-- **Grafo bipartido** (`bipartite`)
+- **Multigrafo** (`MultiGraph`)
+- **Multigrafo direcionado** (`MultiDiGraph`)
+
+---
+
+# Adicionando Arestas e Vértices
 
 ```python
-G = nx.DiGraph()
-G.add_weighted_edges_from([(1, 2, 4.5), (2, 3, 3.0)])
+G.add_node(1) # Adiciona um nó
+G.add_edge(1, 2) # Adiciona uma aresta
+G.add_edges_from([(2, 3), (3, 1)]) # Adiciona várias arestas
 ```
+
+- Observação: os nós são adicionados automaticamente ao adicionar uma aresta.
+
+---
+
+# Adicionando Atributos
+
+```python
+G.add_edge(1, 2, weight=3.0)
+G.add_node(1, color='red')
+```
+- Atributos podem ser adicionados a nós e arestas.
+- Comumente usamos: `weight`, `color`, `label`, `capacity`, etc.
+- Mas aceita qualquer nome, pois são argumentos variáveis.
+
+---
+
+# Acessando Atributos
+
+```python
+G.nodes[1]['color']
+G.edges[1, 2]['weight']
+```
+
+- Acessamos os atributos de nós e arestas através de um dicionário.
+
+---
+
+# Removendo Arestas e Vértices
+
+```python
+G.remove_node(1) # Remove um nó
+G.remove_edge(1, 2) # Remove uma aresta
+G.remove_edges_from([(2, 3), (3, 1)]) # Remove várias arestas
+```
+
+- Observação: ao remover um nó, todas as arestas conectadas a ele são removidas.
+
+
+---
+
+# 📊 Visualização de Grafos
+
+- NetworkX não possui uma função de visualização, mas é compatível com diversas bibliotecas de visualização.
+
+```python
+import matplotlib.pyplot as plt
+nx.draw(G, with_labels=True)
+plt.show()
+```
+
+- [Galeria](https://networkx.org/documentation/stable/auto_examples/index.html)
+
+![bg right:40% 90%](https://networkx.org/documentation/stable/_images/sphx_glr_plot_multipartite_graph_001.png)
+
+---
+
+# Travessia de Grafos
+
+- NetworkX possui funções para percorrer grafos de diversas formas. [doc](https://networkx.org/documentation/stable/reference/algorithms/traversal.html)
+
+- Exemplo: **BFS** (Busca em Largura)
+
+```python
+bfs = nx.bfs_edges(G, source=1)
+print(list(bfs))
+```
+
+---
+
+# Algortimos de Otimização Combinatória
+
+- NetworkX possui diversos algoritmos para otimização combinatória em grafos. [doc](https://networkx.org/documentation/stable/reference/algorithms/index.html)
+
+- Exemplos:
+  - Caminho Mínimo
+  - Árvores Geradoras Mínimas
+  - Fluxo Máximo
+  - Casamento Máximo
+  - Problema do Caixeiro Viajante
 
 ---
 
 # 🔹 Caminho Mínimo
 
-## 📍 Algoritmo de Dijkstra
+- Uma ampla gama de algoritmos para encontrar o caminho mais curto entre dois nós.[doc](https://networkx.org/documentation/stable/reference/algorithms/shortest_paths.html)
+  - Dijkstra
+  - Bellman-Ford
+  - Floyd-Warshall
+  - A*
+  - Johnson
 
-- Encontra o caminho mais curto entre dois nós em grafos com pesos não negativos.
 
-```python
-shortest_path = nx.shortest_path(G, source=1, target=3, weight='weight')
-print(shortest_path)
-```
-
-- Alternativas:
-  - **Bellman-Ford** (suporta pesos negativos)
-  - **A*** (A-star) para buscas guiadas
 
 ---
 
